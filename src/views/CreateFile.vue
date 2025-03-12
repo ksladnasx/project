@@ -23,7 +23,12 @@ const fileType = ref('');
 
 
 const handleSubmit = () => {
-  try{
+ 
+  if (!fileName.value) {
+    ElMessage.warning('请输入文件名称');
+    return;
+  }
+   try{
     axiosService.post(hostname+"/api/ai_case/create",{
     templateId:fileType.value,
     aiCaseName:fileName.value
@@ -31,11 +36,6 @@ const handleSubmit = () => {
   }catch(e) {
     console.error(e)
   }
-  if (!fileName.value) {
-    ElMessage.warning('请输入文件名称');
-    return;
-  }
-  
   ElMessage.success('文件创建成功');
   router.push('/modelfile');
 };

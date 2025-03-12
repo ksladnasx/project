@@ -85,7 +85,7 @@ const handleSubmit = async () => {
       headers: {
         'Content-Type': 'multipart/form-data',
         // 如果需要认证可以取消注释下面这行
-        // 'Authorization': `Bearer ${yourToken}`
+        'Authorization': `Bearer ${JSON.parse(sessionStorage.getItem('accessToken') || '""')}`
       },
       timeout: 30000 // 30秒超时
     });

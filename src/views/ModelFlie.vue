@@ -572,18 +572,21 @@ button.active {
 
 /* 模板管理区域整体布局 */
 .file-management {
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-    min-width: 1200px;
-    /* 防止内容挤压 */
+    min-height: 100vh;
+    padding: 2vw;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* 启用垂直滚动条 */
 }
 
 /* 页面头部样式 */
 .header {
-    margin-bottom: 24px;
+    width: 100%;
+    margin-bottom: 4vh;
     position: relative;
-    right: 100px;
+    left: 2vw;
 }
 
 /* 筛选容器基础样式 */
@@ -592,7 +595,9 @@ button.active {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
+    position: relative;
+    left: 6vw;
 }
 
 /* 筛选组布局 */
@@ -610,7 +615,7 @@ button.active {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    /* gap: 4px; */
 }
 
 /* 标签样式 */
@@ -634,9 +639,9 @@ select {
     width: 200px;
     display: flex;
     position: relative;
-    left: 1030px;
-    bottom: 50px;
-    gap: 8px;
+    left: 120vh;
+    bottom: 5.5vh;
+    gap: 8px;   
     justify-content: flex-end;
 }
 
@@ -647,6 +652,7 @@ select {
     cursor: pointer;
     transition: all 0.2s;
     min-width: 80px;
+    transition: all 0.2s;
 }
 
 /* 查询按钮样式 */
@@ -672,7 +678,8 @@ select {
 .table-container {
     border: 1px solid #ebeef5;
     border-radius: 8px;
-    overflow: visible;
+    /* overflow: visible;    */
+
     /* 允许菜单溢出 */
 }
 

@@ -67,7 +67,7 @@ button:focus {
 
 .main-content.with-sidebar {
   width: calc(100% - 250px);
-}                       
+}                     
 
 /* 过渡效果 */
 .fade-enter-active,

@@ -525,16 +525,18 @@ button.active {
 }
 
 .file-management {
-    padding: 24px;
-    height: auto;
-    max-width: 1200px;
-    margin: 0 auto;
+    /* min-height: 100vh; */
+    padding: 2vw;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
-    margin-bottom: 24px;
+    width: 100%;
+    margin-bottom: 4vh;
     position: relative;
-    right: 100px;
+    left: 2vw;
 }
 
 .create-file-btn {
@@ -558,12 +560,14 @@ button.active {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
+    position: relative;
+    left: 5vw;
 }
 
 .filter-group {
     position: relative;
-    right: 100px;
+    right: 10vh;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
@@ -628,6 +632,7 @@ select {
 .table-container {
     border: 1px solid #ebeef5;
     border-radius: 8px;
+
     /* overflow: hidden; */
 }
 
