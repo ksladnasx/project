@@ -2,6 +2,13 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus'; 
+import axios  from 'axios';
+import { useUserStore } from '../store';
+import host from '../config/hostname';
+import axiosService from "../utils/axios-test"
+
+const userStore = useUserStore();
+const hostname = host();
 
 
 declare type Files = {
@@ -16,6 +23,14 @@ const fileType = ref('');
 
 
 const handleSubmit = () => {
+  try{
+    axiosService.post(hostname+"/api/ai_case/create",{
+    templateId:fileType.value,
+    aiCaseName:fileName.value
+  })
+  }catch(e) {
+    console.error(e)
+  }
   if (!fileName.value) {
     ElMessage.warning('请输入文件名称');
     return;

@@ -8,6 +8,7 @@ import host from "../config/hostname";
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import { ElMessage, ElMessageBox } from 'element-plus';
+import axiosService from "../utils/axios-test"
 
 const userId = ref()
 const hostname = host();
@@ -52,14 +53,16 @@ export default defineComponent({
             };
 
             // 检查每个可选参数是否被传入，如果传入则添加到 configData
-            if (id !== undefined) configData.id = id;
-            if (fuzzyTemplateName !== undefined) configData.fuzzyTemplateName = fuzzyTemplateName;
-            if (authorName !== undefined) configData.authorName = authorName;
-            if (category !== undefined) configData.category = category;
-            if (updateTimeStart !== undefined) configData.updateTimeStart = updateTimeStart;
+            if (id && id != 0) configData.id = id;
+            if (fuzzyTemplateName && fuzzyTemplateName != "") configData.fuzzyTemplateName = fuzzyTemplateName;
+            if (authorName && authorName != '') configData.authorName = authorName;
+            if (category && category != '') configData.category = category;
+            if (updateTimeStart) configData.updateTimeStart = updateTimeStart;
+
+            console.log(configData)
 
             try {
-                const res = await axios.post(hostname + "/api/template/page", configData)
+                const res = await axiosService.post(hostname + "/api/template/page", configData)
                 if (res.data.code != 200) {
                     ElMessage.error(res.data.msg)
                     return;
@@ -74,15 +77,18 @@ export default defineComponent({
             }
         };
 
+        //日期处理函数，将时间戳转化为具体对应的年月日以及精确的AM和PM
+        function customParse(dateStr: string) {
+            const date = new Date(dateStr); // 转换为 Date 对象
+            return date.getTime(); // 获取时间戳（毫秒级）
+        }
 
         const applyFilters = () => {
             if (filters.value.id || filters.value.author || filters.value.category || filters.value.modifyDate || filters.value.templateName) {
                 console.log(filters.value)
-                updatePage(currentPage.value, pageSize, Number(filters.value.id), filters.value.author, filters.value.category, filters.value.modifyDate)
+                updatePage(currentPage.value, pageSize, Number(filters.value.id), filters.value.templateName, filters.value.author, filters.value.category, customParse(filters.value.modifyDate))
             }
 
-
-            // filteredTemplates.value = result;
             currentPage.value = 1;
         };
 
@@ -111,7 +117,7 @@ export default defineComponent({
         // 查看模板详情（GET）
         const viewFileDetails = async (id: number) => {
             try {
-                const response = await axios.get(`/api/files/${id}`);
+                const response = await axiosService.get(`/api/files/${id}`);
                 console.log('模板详情:', response.data);
 
                 // 实际开发中这里可以跳转到详情页
@@ -136,7 +142,7 @@ export default defineComponent({
                     type: 'warning',
                 });
 
-                const response = await axios.post(hostname + `/api/template/delete`,
+                const response = await axiosService.post(hostname + `/api/template/delete`,
                     {
                         id: id
                     }
@@ -161,7 +167,7 @@ export default defineComponent({
         // 下载模板（POST）
         const downloadFile = async (id: number) => {
             try {
-                const response = await axios.get(hostname + `/api/template/download/${id}`, {
+                const response = await axiosService.get(hostname + `/api/template/download/${id}`, {
                     responseType: 'blob',
                     headers: {
                         'Content-Type': 'application/octet-stream'
@@ -210,7 +216,7 @@ export default defineComponent({
                     }
                 );
 
-                const response = await axios.post(hostname + `/api/template/rename`, {
+                const response = await axiosService.post(hostname + `/api/template/rename`, {
                     id: id,
                     templateName: newName
                 });
@@ -331,7 +337,7 @@ export default defineComponent({
             userId.value = userStore.$state.currentUser?.id
             console.log(currentPage.value)
             try {
-                const res = await axios.post(hostname + "/api/template/page", {
+                const res = await axiosService.post(hostname + "/api/template/page", {
                     currentPage: currentPage.value - 1,
                     pageSize: pageSize
                 })

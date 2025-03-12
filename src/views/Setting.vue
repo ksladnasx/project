@@ -5,6 +5,7 @@ import { UserInfo } from '../types/types';
 import host from '../config/hostname';
 import { useUserStore } from '../store/index'
 import { ElMessage } from 'element-plus';
+import axiosService from "../utils/axios-test"
 const userStore = useUserStore()
 
 const hostname = host()
@@ -61,7 +62,7 @@ const saveUserInfo = async () => {
 
     try {
         // 调用更新用户信息接口
-        await axios.post(hostname + '/api/user/update', {
+        await axiosService.post(hostname + '/api/user/update', {
             userId: userStore.$state.currentUser?.id,
             username: userInfo.value.username,
             organization: userInfo.value.organization
@@ -109,7 +110,7 @@ const uploadAvatar = async () => {
     // }
     try {
         // 调用头像上传接口
-        const response = await axios.post('/api/avatar', formData, {
+        const response = await axiosService.post('/api/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
 

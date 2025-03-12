@@ -2,7 +2,8 @@
 // import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
-
+import { useRoute } from 'vue-router'
+const route = useRoute()
 // 路由器实例
 const router = useRouter();
 // 用户存储
@@ -48,22 +49,22 @@ const logout = () => {
 
     <div class="menu">
 
-      <div class="menu-item" @click="navigateTo('/modelfile')" :class="{ active: $route.path === '/modelfile' }">
+      <div class="menu-item" @click="navigateTo('/modelfile')" :class="{ active: route.path === '/modelfile' }">
         <i class="el-icon-document-add"></i>
         <span>模板管理</span>
       </div>
       
-      <div class="menu-item" @click="navigateTo('/filemanage')" :class="{ active: $route.path === '/filemanage' }">
+      <div class="menu-item" @click="navigateTo('/filemanage')" :class="{ active: route.path === '/filemanage' }">
         <i class="el-icon-folder"></i>
         <span>文件管理</span>
       </div>
 
-      <div class="menu-item" @click="navigateTo('/permissions')" :class="{ active: $route.path === '/permissions' }">
+      <div class="menu-item" @click="navigateTo('/permissions')" :class="{ active: route.path === '/permissions' }">
         <i class="el-icon-document-add"></i>
         <span>权限管理</span>
       </div>
 
-      <div class="menu-item" @click="navigateTo('/setting')" :class="{ active: $route.path === '/setting' }">
+      <div class="menu-item" @click="navigateTo('/setting')" :class="{ active: route.path === '/setting' }">
         <i class="el-icon-document-add"></i>
         <span>设置</span>
       </div>
@@ -87,17 +88,7 @@ const logout = () => {
 </template>
 
 <style scoped>
-.sidebar {
-  width: 250px;
-  height: 100vh;
-  background-color: #304156;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  flex-shrink: 0;
-}
+
 
 .logo {
   height: 60px;
@@ -238,4 +229,95 @@ const logout = () => {
   color: #ff6b6b;
   transform: rotate(180deg);
 }
+
+.sidebar {
+  width: clamp(80px, 20vw, 220px); /* 动态宽度，范围200-300px */
+  height: 100vh;      
+  background-color: #304156;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  flex-shrink: 0;
+  transition: width 0.3s ease; /* 添加过渡动画 */
+}
+
+.logo {
+  height: clamp(50px, 8vh, 70px); /* 动态高度 */
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #1f2d3d;
+  background-color: #263445;
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: clamp(14px, 1.5vw, 18px); /* 动态字体大小 */
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu {
+  flex: 1;
+  padding: 2vh 0;
+  overflow-y: auto;
+}
+
+.menu-item {
+  height: clamp(40px, 6vh, 50px); /* 动态高度 */
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(10px, 1.5vw, 20px);
+  margin: 0 0.5rem 0.5rem;
+  font-size: clamp(12px, 1.1vw, 14px); /* 动态字体 */
+}
+
+.menu-item i {
+  margin-right: clamp(8px, 1vw, 12px);
+  font-size: clamp(16px, 1.5vw, 18px);
+}
+
+.user-express {
+  width: auto;
+  height: auto;
+  margin: 2vh auto;
+  left: 0;
+  text-align: center;
+}
+
+.main-avatar {
+  width: clamp(70px, 10vw, 90px);
+  height: clamp(70px, 10vw, 90px);
+  margin: 0 auto;
+}
+
+.user-info {
+  height: clamp(60px, 8vh, 80px);
+  padding: 0 clamp(10px, 1.5vw, 20px);
+}
+
+.avatar {
+  width: clamp(30px, 4vw, 40px);
+  height: clamp(30px, 4vw, 40px);
+}
+
+.user-name {
+  font-size: clamp(12px, 1.1vw, 14px);
+}
+
+.user-role {
+  font-size: clamp(10px, 0.9vw, 12px);
+}
+
+.logout {
+  width: clamp(25px, 3vw, 30px);
+  height: clamp(25px, 3vw, 30px);
+  font-size: clamp(14px, 1.5vw, 18px);
+}
+
 </style>

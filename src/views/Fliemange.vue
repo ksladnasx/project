@@ -7,8 +7,8 @@ import router from "../router";
 import host from "../config/hostname";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from "../store";
-import axios from "axios";
 import formatDate from "../tools/formatDate";
+import axiosService from "../utils/axios-test"
 
 const userId = ref()
 const hostname = host();
@@ -54,26 +54,34 @@ export default defineComponent({
         const totalPages = ref(100)
 
         //日期处理函数，将时间戳转化为具体对应的年月日以及精确的AM和PM
-        // 日期处理函数
+        function customParse(dateStr: string) {
+            const date = new Date(dateStr); // 转换为 Date 对象
+            return date.getTime(); // 获取时间戳（毫秒级）
+        }
 
         const gotoFileCreate = () => {
             router.push('/createfile');
         };
+
         const applyFilters = () => {
-            let result = MyFiles;
+            console.log(filters.value)
+            if (filters.value.id || filters.value.author || filters.value.filename || filters.value.templateName || filters.value.modifyDate) {
+                console.log(filters.value)
+                updatePage(currentPage.value, pageSize, Number(filters.value.id), filters.value.author, filters.value.filename, filters.value.templateName, customParse(filters.value.modifyDate))
+            }
 
 
-            filteredTemplates.value = result.value;
+            // filteredTemplates.value = result;
             currentPage.value = 1;
         };
 
         const resetFilters = () => {
             filters.value = {
-                id: "",
-                filename: "",
-                templateName: "",
-                author: "",
-                modifyDate: "",
+                id: '',
+                filename: '',
+                templateName: '',
+                author: '',
+                modifyDate: '',
             };
             filteredTemplates.value = MyFiles.value;
             currentPage.value = 1;
@@ -97,7 +105,7 @@ export default defineComponent({
         // 查看文件详情（GET）
         const viewFileDetails = async (id: number) => {
             try {
-                const response = await axios.get(hostname+`/api/files/${id}`);
+                const response = await axiosService.get(hostname + `/api/files/${id}`);
                 // console.log('文件详情:', response.data);
 
                 // 实际开发中这里可以跳转到详情页
@@ -123,7 +131,7 @@ export default defineComponent({
                     type: 'warning',
                 });
 
-                const response = await axios.post(hostname + `/api/ai_case/delete`,
+                const response = await axiosService.post(hostname + `/api/ai_case/delete`,
                     {
                         id: id
                     }
@@ -149,7 +157,7 @@ export default defineComponent({
         // 下载文件（POST）
         const downloadFile = async (id: number) => {
             try {
-                const response = await axios.get(`/api/ai_case/download/${id}`, {
+                const response = await axiosService.get(`/api/ai_case/download/${id}`, {
                     responseType: 'blob',
                     headers: {
                         'Content-Type': 'application/octet-stream'
@@ -199,7 +207,7 @@ export default defineComponent({
                     }
                 );
 
-                const response = await axios.post(hostname+`/api/ai_case/rename`, {
+                const response = await axiosService.post(hostname + `/api/ai_case/rename`, {
                     id: id,
                     templateName: newName
                 });
@@ -283,16 +291,18 @@ export default defineComponent({
             };
 
             // 检查每个可选参数是否被传入，如果传入则添加到 configData
-            if (id !== undefined) configData.id = id;
-            if (fuzzyFileName !== undefined) configData.fuzzyFileName = fuzzyTemplateName;
-            if (authorName !== undefined) configData.authorName = authorName;
-            if (fuzzyTemplateName !== undefined) configData.fuzzyTemplateName = fuzzyTemplateName;
-            if (updateTimeStart !== undefined) configData.updateTimeStart = updateTimeStart;
+            if (id && id != 0) configData.id = id;
+            if (fuzzyFileName && fuzzyFileName != "") configData.fuzzyFileName = fuzzyFileName;
+            if (authorName && authorName != '') configData.authorName = authorName;
+            if (fuzzyTemplateName && fuzzyTemplateName != '') configData.fuzzyTemplateName = fuzzyTemplateName;
+            if (updateTimeStart) configData.updateTimeStart = updateTimeStart;
+            console.log("请求的数据：")
+            console.log(configData)
 
             try {
 
 
-                const res = await axios.post(hostname + "/api/ai_case/page", configData)
+                const res = await axiosService.post(hostname + "/api/ai_case/page", configData)
                 if (res.data.code != 200) {
                     ElMessage.error(res.data.msg)
                     return;
@@ -324,7 +334,7 @@ export default defineComponent({
             userId.value = userStore.$state.currentUser?.id
             console.log(currentPage.value)
             try {
-                const res = await axios.post(hostname + "/api/template/page", {
+                const res = await axiosService.post(hostname + "/api/template/page", {
                     currentPage: currentPage.value - 1,
                     pageSize: pageSize
                 })

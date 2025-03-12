@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import type { User } from '../../types/types';
-import axios from 'axios';
 import host from '../../config/hostname';
 import verifyCode from '../../tools/verifyCode';
 import { ElMessage } from 'element-plus';
 import { UserInfo } from '../../types/types';
 import { Ref} from 'vue';
+import axiosService from '../../utils/axios-test' // 导入配置好的axios实例
 
 
 /**
@@ -47,19 +47,22 @@ export const useUserStore = defineStore('user', {
         this.currentUser = user;
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        sessionStorage.setItem('accessToken', JSON.stringify(user.accessToken))
+        sessionStorage.setItem('refreshToken', JSON.stringify(user.refreshToken))
         return 200
       }
 
 
 
       try {
-        const response = await axios.post(hostname + '/api/login', {
+        const response = await axiosService.post(hostname + '/api/login', {  
           email: email,
           password: password,
         });
 
 
 
+        //登录成功获取token
         if (response.data.code === 200) {
           const user = {
             id: response.data.data.id,
@@ -68,10 +71,12 @@ export const useUserStore = defineStore('user', {
             refreshToken: response.data.tokens[1]
           }
           localStorage.setItem('user', JSON.stringify(user));
+          sessionStorage.setItem('accessToken', JSON.stringify(user.accessToken))
+          sessionStorage.setItem('refreshToken', JSON.stringify(user.refreshToken))
 
-
+          //获取用户信息
           try {
-            const info = await axios.post(hostname + "/api/user/info", {
+            const info = await axiosService.post(hostname + "/api/user/info", {
               userId: user.id,
             })
             if (info.data.code != 200) {
@@ -107,7 +112,7 @@ export const useUserStore = defineStore('user', {
       if (userItem !== null) {
         // //反序列化
         // const user = JSON.parse(userItem)
-        const res = await axios.post(`/auth/logout/${this.$state.currentUser?.id}`, {
+        const res = await axiosService.post(`/auth/logout/${this.$state.currentUser?.id}`, {
           userId: this.$state.currentUser?.id
         });
         if (res.data.code === 200) {

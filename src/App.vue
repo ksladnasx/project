@@ -44,7 +44,7 @@ body {
   background-color: #f5f7fa;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow:visible;
 }
 
 button:focus {
@@ -54,19 +54,20 @@ button:focus {
 .app-container {
   width: 100%;
   height: 100vh;
-  /* overflow: hidden; */
+  overflow:visible;
   display: flex;
+  
 }
 
 .main-content {
   flex: 1;
-  overflow-y: auto;
+  overflow-y:auto;
   transition: all 0.3s ease;
 }
 
 .main-content.with-sidebar {
   width: calc(100% - 250px);
-}
+}                       
 
 /* 过渡效果 */
 .fade-enter-active,

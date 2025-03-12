@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import axios from 'axios';
+import axiosService from "../utils/axios-test"
 
 const router = useRouter();
 
@@ -80,7 +81,7 @@ const handleSubmit = async () => {
     formData.append('category', templateType.value);
     formData.append('multipartFile', fileList.value[0]);
 
-    const response = await axios.post('/api/template/upload', formData, {
+    const response = await axiosService.post('/api/template/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         // 如果需要认证可以取消注释下面这行
