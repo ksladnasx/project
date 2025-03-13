@@ -1,5 +1,6 @@
 import axios from "axios";
 import host from "../config/hostname";
+import router from "../router";
 
 // 在拦截器中使用时显式传递
 const hostname = host();
@@ -14,6 +15,7 @@ const service = axios.create({
 // ==================== 请求拦截器 ====================
 service.interceptors.request.use(
     config => {
+        
         const url = config.url;
         if (sessionStorage.getItem("accessToken") && url?.indexOf("renewal") === -1) {
             try {
@@ -79,9 +81,9 @@ service.interceptors.response.use(
         return response.data;
     },
     error => {
-        if (error.response?.status === 404) {
+        if (error.response?.status === 401) {
             console.error("资源未找到:", error.config.url);
-            // router.push("/404");  // 建议使用vue-router跳转[4](@ref)
+           router.push("/wrong");  // 建议使用vue-router跳转[4](@ref)
         }
         return Promise.reject(error);
     }

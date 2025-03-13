@@ -410,8 +410,8 @@ export default defineComponent({
                     <label>修改日期:</label>
                     <input type="date" v-model="filters.modifyDate">
                 </div>
-            </div>
-            <div class="filter-actions">
+            
+            <div class="filter-item filter-actions">
                 <button class="btn query" @click="applyFilters">查询</button>
                 <button class="btn reset" @click="resetFilters">
                     <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
@@ -425,7 +425,7 @@ export default defineComponent({
                     </svg>
                     重置
                 </button>
-            </div>
+            </div></div>
         </div>
 
         <div class="table-container">
@@ -597,13 +597,13 @@ select {
 }
 
 .filter-actions {
-    width: 200px;
+    width: 100vh;
+    height: 5vh;
     display: flex;
     position: relative;
-    left: 1030px;
-    bottom: 50px;
-    gap: 8px;
-    justify-content: flex-end;
+    top: 1.3vh;
+    flex-direction: row;
+    align-items: center;
 }
 
 .btn {
@@ -690,6 +690,7 @@ td {
 
 .act {
     position: relative;
+    right: 10vh;
     display: flex;
     justify-content: center;
 }

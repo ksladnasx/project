@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus'; 
-import axios  from 'axios';
+import { ElMessage } from 'element-plus';
 import { useUserStore } from '../store';
 import host from '../config/hostname';
 import axiosService from "../utils/axios-test"
@@ -23,17 +22,17 @@ const fileType = ref('');
 
 
 const handleSubmit = () => {
- 
+
   if (!fileName.value) {
     ElMessage.warning('请输入文件名称');
     return;
   }
-   try{
-    axiosService.post(hostname+"/api/ai_case/create",{
-    templateId:fileType.value,
-    aiCaseName:fileName.value
-  })
-  }catch(e) {
+  try {
+    axiosService.post(hostname + "/api/ai_case/create", {
+      templateId: fileType.value,
+      aiCaseName: fileName.value
+    })
+  } catch (e) {
     console.error(e)
   }
   ElMessage.success('文件创建成功');
@@ -41,21 +40,93 @@ const handleSubmit = () => {
 };
 
 
+
+// 1. 类型定义
+interface Option {
+  id: number
+  value: string
+  label: string
+}
+
+// 2. 创建axios实例（网页5/网页9）
+
+
+// 3. 响应式数据
+const selectedValue = ref('')
+const options = ref<Option[]>([])
+const currentPage = ref(1)
+const loading = ref(false)
+const hasMore = ref(true)
+
+// 4. 数据获取方法（网页6/网页9）
+const fetchData = async (page: number) => {
+  try {
+    const response = await axiosService.get('/api/template/page', {
+      params: { currentPage: page, pageSize: 10 }
+    })
+    return response.data.data
+  } catch (error) {
+    console.error('请求失败:', error)
+    return []
+  }
+}
+
+// 5. 初始化加载（网页7）
+const loadFirstPage = async () => {
+  if (options.value.length > 0 || loading.value) return
+
+  loading.value = true
+  options.value = await fetchData(1)
+  currentPage.value = 2
+  loading.value = false
+}
+
+// 6. 滚动处理（网页6/网页7）
+const handleScroll = async (e: Event) => {
+  const target = e.target as HTMLSelectElement
+  const { scrollTop, scrollHeight, clientHeight } = target
+
+  // 滚动到底部阈值判断（距底部50px触发）
+  if (scrollHeight - (scrollTop + clientHeight) < 50
+    && !loading.value
+    && hasMore.value
+  ) {
+    loading.value = true
+    const newData = await fetchData(currentPage.value)
+
+    options.value = [...options.value, ...newData]
+    hasMore.value = newData.length >= 10 // 根据实际接口调整
+    currentPage.value++
+    loading.value = false
+  }
+}
+
+// 7. 生命周期管理（网页3）
+onMounted(() => {
+  const selectEl = document.querySelector('select')
+  selectEl?.addEventListener('scroll', handleScroll)
+})
+
+onBeforeUnmount(() => {
+  const selectEl = document.querySelector('select')
+  selectEl?.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
   <div class="create-template">
     <div class="template-form">
       <h2>创建文件</h2>
-      
+
       <div class="form-group">
         <label>模板类别</label>
         <div class="select-wrapper">
-          <select v-model="fileType">
-            <option ></option>
-            <option value="a类" >陆军医院</option>
-            <option value="b类">空军医院</option>
-            
+          <select v-model="selectedValue" @click="loadFirstPage" @scroll.passive="handleScroll" class="scroll-select">
+            <option value=""> </option>
+            <option v-for="item in options" :key="item.id" :value="item.value">
+              {{ item.label }}
+            </option>
+            <option v-if="loading" disabled>加载中...（已加载{{ options.length }}条）</option>
           </select>
           <div class="help-icon" title="可以无类别">?</div>
         </div>
@@ -63,14 +134,10 @@ const handleSubmit = () => {
 
       <div class="form-group">
         <label>文件名称</label>
-        <input 
-          type="text" 
-          v-model="fileName"
-          placeholder="请输入文件名称"
-        />
+        <input type="text" v-model="fileName" placeholder="请输入文件名称" />
       </div>
 
-    
+
 
       <button style="align-items: center;" @click="handleSubmit">创建</button>
     </div>
@@ -114,7 +181,8 @@ label {
   font-weight: 500;
 }
 
-input, select {
+input,
+select {
   width: 100%;
   padding: 0.8em;
   border: 1px solid #dcdfe6;
@@ -124,7 +192,8 @@ input, select {
   box-sizing: border-box;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   border-color: #409eff;
   outline: none;
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);

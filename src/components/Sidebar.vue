@@ -122,6 +122,7 @@ const logout = () => {
   border-radius: 4px;
   margin-left: 10px;
   margin-right: 10px;
+  
 }
 
 .menu-item:hover {

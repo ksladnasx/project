@@ -57,7 +57,7 @@ export const useUserStore = defineStore('user', {
       try {
         const response = await axiosService.post(hostname + '/api/login', {  
           email: email,
-          password: password,
+          password: password
         });
 
 
