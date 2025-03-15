@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { User } from '../../types/types';
+// import type { User } from '../../types/types';
 import host from '../../config/hostname';
 import verifyCode from '../../tools/verifyCode';
 import { ElMessage } from 'element-plus';
@@ -14,9 +14,7 @@ import axiosService from '../../utils/axios-test' // 导入配置好的axios实�
 const hostname = host()
 export const useUserStore = defineStore('user', {
   state: () => ({
-    currentUser: null as User | null,
     userInfo: null as Ref<UserInfo> | null
-    // currentUser: true 
   }),
 
   actions: {
@@ -44,7 +42,6 @@ export const useUserStore = defineStore('user', {
           avatarUrl: 'https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain',
         };
         this.userInfo = userInfo;
-        this.currentUser = user;
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('userInfo', JSON.stringify(userInfo));
         sessionStorage.setItem('accessToken', JSON.stringify(user.accessToken))
@@ -55,7 +52,7 @@ export const useUserStore = defineStore('user', {
 
 
       try {
-        const response = await axiosService.post(hostname + '/api/login', {  
+        const response = await axiosService.post(hostname + '/auth/login', {  
           email: email,
           password: password
         });
@@ -71,8 +68,8 @@ export const useUserStore = defineStore('user', {
             refreshToken: response.data.tokens[1]
           }
           localStorage.setItem('user', JSON.stringify(user));
-          sessionStorage.setItem('accessToken', JSON.stringify(user.accessToken))
-          sessionStorage.setItem('refreshToken', JSON.stringify(user.refreshToken))
+          sessionStorage.setItem('accessToken', JSON.stringify(response.data.tokens[0]))
+          sessionStorage.setItem('refreshToken', JSON.stringify(response.data.tokens[1]))
 
           //获取用户信息
           try {
@@ -112,8 +109,8 @@ export const useUserStore = defineStore('user', {
       if (userItem !== null) {
         // //反序列化
         // const user = JSON.parse(userItem)
-        const res = await axiosService.post(`/auth/logout/${this.$state.currentUser?.id}`, {
-          userId: this.$state.currentUser?.id
+        const res = await axiosService.post(`/auth/logout/${this.$state.userInfo?.id}`, {
+          userId: this.$state.userInfo?.id
         });
         if (res.data.code === 200) {
           ElMessage.success('登出成功');
@@ -126,7 +123,7 @@ export const useUserStore = defineStore('user', {
         console.error("用户信息不存在");
       }
 
-      this.currentUser = null;
+      this.userInfo = null;
       localStorage.removeItem('user');
 
     },
@@ -138,7 +135,6 @@ export const useUserStore = defineStore('user', {
       const user = localStorage.getItem('user');
       const userInfo = localStorage.getItem('userinfo')
       if (user && userInfo) {
-        this.currentUser = JSON.parse(user);
         this.userInfo = JSON.parse(userInfo);
       }
     }

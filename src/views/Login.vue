@@ -24,12 +24,12 @@ const handleLogin = async () => {
 
   loading.value = true;
   try {
-    const res =await userStore.login(username.value, password.value);
+    const res = await userStore.login(username.value, password.value);
 
-    if (res == 200)  {
+    if (res == 200) {
       ElMessage.success('登录成功');
       router.push('/modelfile');
-    } else{
+    } else {
       //请求失败的返回
       
       ElMessage.error(res);
@@ -81,9 +81,9 @@ const handleForgotPassword = () => {
         </div>
 
         <div class="register-btn">
-          <button @click="handleRegister" style="width: 80px; height: 35px; font-size: 12px;" >
-          <span class="btn-text">注册</span>
-        </button>
+          <button @click="handleRegister" style="width: 80px; height: 35px; font-size: 12px;">
+            <span class="btn-text">注册</span>
+          </button>
         </div>
 
         <div class="find-btn">
@@ -126,6 +126,12 @@ const handleForgotPassword = () => {
   }
 }
 
+p{
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
 .login-box {
   width: 600px;
   padding: 40px;
@@ -253,7 +259,7 @@ const handleForgotPassword = () => {
   height: 40px;
   background-color: #1890ff;
   color: white;
-  border: none; 
+  border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
@@ -264,14 +270,15 @@ const handleForgotPassword = () => {
 
 .register-btn {
   position: relative;
-  bottom:60px;
+  bottom: 60px;
   left: 450px;
 }
-.find-btn{
+
+.find-btn {
   padding: 0;
-  position: relative; 
-   left: 450px;
-   bottom: 50px;
+  position: relative;
+  left: 450px;
+  bottom: 50px;
 }
 
 .login-btn::before {
@@ -322,5 +329,7 @@ const handleForgotPassword = () => {
   animation: fadeIn 0.8s ease;
   animation-delay: 0.7s;
   animation-fill-mode: both;
+
+  
 }
 </style>

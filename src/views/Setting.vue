@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import axios from 'axios';
+// import axios from 'axios';
 import { UserInfo } from '../types/types';
 import host from '../config/hostname';
 import { useUserStore } from '../store/index'
@@ -52,7 +52,7 @@ const saveUserInfo = async () => {
         return;
     }
 
-    // 若 organization 已存在，弹出提示并返回
+    // 测试部分
     userInfo.value.username = userInfo.value.username
     userInfo.value.organization = userInfo.value.organization
     localStorage.setItem('userinfo', JSON.stringify(userInfo.value))
@@ -63,7 +63,7 @@ const saveUserInfo = async () => {
     try {
         // 调用更新用户信息接口
         await axiosService.post(hostname + '/api/user/update', {
-            userId: userStore.$state.currentUser?.id,
+            userId: userStore.$state.userInfo?.id,
             username: userInfo.value.username,
             organization: userInfo.value.organization
         });
@@ -206,7 +206,7 @@ const uploadAvatar = async () => {
 
 h2 {
     color: #1a1a1a;
-    margin-bottom: 2rem;
+    margin-bottom: 2rem;    
 }
 
 .setting-item {

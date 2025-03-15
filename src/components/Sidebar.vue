@@ -88,7 +88,12 @@ const logout = () => {
 </template>
 
 <style scoped>
-
+*{
+  -webkit-user-select: none;  /* Chrome/Safari/Edge */
+  -moz-user-select: none;     /* Firefox */
+  -ms-user-select: none;      /* IE10+ */
+  user-select: none;          /* 标准语法 */
+}
 
 .logo {
   height: 60px;

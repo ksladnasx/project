@@ -331,8 +331,9 @@ export default defineComponent({
         // 挂载时候发请求加载初始页面
         onMounted(async () => {
             const userStore = useUserStore();
-            userId.value = userStore.$state.currentUser?.id
-            console.log(currentPage.value)
+            userId.value = userStore.$state.userInfo?.id
+            console.log(`加载了初始的第${currentPage.value}页数据`)
+            console.log(userId.value)
             try {
                 const res = await axiosService.post(hostname + "/api/template/page", {
                     currentPage: currentPage.value - 1,
@@ -343,7 +344,7 @@ export default defineComponent({
             } catch (e) {
                 console.error(e)
             }
-            console.log("加载了初始的第一页数据")
+            
         });
         onUnmounted(() => {
             console.log("卸载了")

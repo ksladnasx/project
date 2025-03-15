@@ -15,9 +15,15 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+
+  /* -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; */
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -64,6 +70,7 @@ button {
   cursor: pointer;
   transition: all 0.25s ease;
 }
+
 button:focus {
   outline: none;
 }
@@ -86,6 +93,7 @@ button:focus-visible {
 .card {
   padding: 2em;
 }
+
 .help-icon {
   width: 15px;
   height: 15px;
@@ -98,14 +106,17 @@ button:focus-visible {
   font-size: 12px;
   cursor: help;
 }
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }

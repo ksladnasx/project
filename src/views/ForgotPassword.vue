@@ -2,7 +2,7 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import axios from 'axios';
+// import axios from 'axios';
 import host from '../config/hostname';
 import verifyCode from '../tools/verifyCode';
 import axiosService from "../utils/axios-test"

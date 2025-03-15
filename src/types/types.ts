@@ -1,10 +1,3 @@
-// 用户接口
-export interface User {
-  id: number,
-  email: string,
-  accessToken: string,
-  refreshToken: string
-}
 
 // 用户信息接口
 export interface UserInfo {

@@ -3,7 +3,6 @@ import { defineComponent, ref, computed, onMounted, onUnmounted, Ref, watch } fr
 import { useRouter } from 'vue-router';
 import testdata from '../data/data';
 import { TemplateFile } from "../types/types";
-import axios from "axios";
 import host from "../config/hostname";
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
@@ -166,6 +165,7 @@ export default defineComponent({
 
         // 下载模板（POST）
         const downloadFile = async (id: number) => {
+            console.log('downloadFile:'+id)
             try {
                 const response = await axiosService.get(hostname + `/api/template/download/${id}`, {
                     responseType: 'blob',
@@ -334,7 +334,7 @@ export default defineComponent({
         // 挂载时候发请求加载初始页面
         onMounted(async () => {
             const userStore = useUserStore();
-            userId.value = userStore.$state.currentUser?.id
+            userId.value = userStore.$state.userInfo?.id
             console.log(currentPage.value)
             try {
                 const res = await axiosService.post(hostname + "/api/template/page", {
@@ -519,6 +519,11 @@ a类模板提交json，上传该模板的模板有严格的格式校验；">?</s
                                         @click="renameFile(template.id)">
                                         <i class="rename-icon"></i> <!-- 修正图标类名 -->
                                         <span>重命名</span>
+                                    </div>
+                                    <div class="action-item" style="background-color:palevioletred;"
+                                        @click="downloadFile(template.id)">
+                                        <i class="download-icon"></i>
+                                        <span>下载</span>
                                     </div>
                                 </div>
                             </div>
@@ -707,6 +712,7 @@ td {
     border-top: 1px solid #ebeef5;
     color: #606266;
     text-align: center;
+   
 }
 
 /* 分类标签样式 */
