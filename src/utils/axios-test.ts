@@ -8,7 +8,7 @@ const hostname = host();
 
 // 创建独立Axios实例[7,10](@ref)
 const service = axios.create({
-    baseURL: hostname, // 建议从环境变量获取[4](@ref)
+    baseURL: hostname, //拼接请求的基地址
     timeout: 15000,
 });
 

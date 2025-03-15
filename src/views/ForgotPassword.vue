@@ -2,12 +2,10 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-// import axios from 'axios';
-import host from '../config/hostname';
+
 import verifyCode from '../tools/verifyCode';
 import axiosService from "../utils/axios-test"
 
-const hostname = host()
 
 // 路由器实例
 const router = useRouter();
@@ -51,7 +49,7 @@ const sendVerificationCode = async () => {
 
   // 发送验证码
   try {
-    const response = await axiosService.get(hostname + '/auth/captcha/email?email?' + emailForm.email);
+    const response = await axiosService.get('/auth/captcha/email?email?' + emailForm.email);
     if (response.data.code == 200) {
       ElMessage.success('验证码已发送到您的邮箱');
 
@@ -68,7 +66,7 @@ const sendVerificationCode = async () => {
             countdownTimer.value = null;
           }
         }
-      },1000);
+      }, 1000);
 
     } else {
       const message = response.data.msg;
@@ -104,7 +102,7 @@ const resetPassword = async () => {
 
 
   // 重置密码的请求
-  const response = await axiosService.post(hostname + "/auth/update", {
+  const response = await axiosService.post("/auth/update", {
     email: emailForm.email,
     password: passwordForm.password,
     emailVerifyCode: emailForm.verificationCode

@@ -2,7 +2,9 @@
 import { useRouter } from 'vue-router';
 // import { useUserStore } from './store';
 import Sidebar from './components/Sidebar.vue';
-import { ref } from 'vue';
+import {ref } from 'vue';
+
+
 
 // 路由器实例
 const router = useRouter();
@@ -15,6 +17,7 @@ const shouldShowSidebar = () => {
   return !publicRoutes.includes(router.currentRoute.value.name as string);
 };
 const shouldShow = ref(true);
+
 </script>
 
 <template>

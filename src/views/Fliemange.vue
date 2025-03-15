@@ -4,14 +4,13 @@ import { useRoute } from 'vue-router';
 import testdata from '../data/data';
 import { MyFile } from "../types/types";
 import router from "../router";
-import host from "../config/hostname";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import axiosService from "../utils/axios-test"
 
 const userId = ref()
-const hostname = host();
+
 
 export default defineComponent({
     name: "FileManagement",
@@ -105,7 +104,7 @@ export default defineComponent({
         // 查看文件详情（GET）
         const viewFileDetails = async (id: number) => {
             try {
-                const response = await axiosService.get(hostname + `/api/files/${id}`);
+                const response = await axiosService.get(`/api/files/${id}`);
                 // console.log('文件详情:', response.data);
 
                 // 实际开发中这里可以跳转到详情页
@@ -131,7 +130,7 @@ export default defineComponent({
                     type: 'warning',
                 });
 
-                const response = await axiosService.post(hostname + `/api/ai_case/delete`,
+                const response = await axiosService.post(`/api/ai_case/delete`,
                     {
                         id: id
                     }
@@ -207,7 +206,7 @@ export default defineComponent({
                     }
                 );
 
-                const response = await axiosService.post(hostname + `/api/ai_case/rename`, {
+                const response = await axiosService.post(`/api/ai_case/rename`, {
                     id: id,
                     templateName: newName
                 });
@@ -301,8 +300,7 @@ export default defineComponent({
 
             try {
 
-
-                const res = await axiosService.post(hostname + "/api/ai_case/page", configData)
+                const res = await axiosService.post("/api/ai_case/page", configData)
                 if (res.data.code != 200) {
                     ElMessage.error(res.data.msg)
                     return;
@@ -335,7 +333,7 @@ export default defineComponent({
             console.log(`加载了初始的第${currentPage.value}页数据`)
             console.log(userId.value)
             try {
-                const res = await axiosService.post(hostname + "/api/template/page", {
+                const res = await axiosService.post("/api/template/page", {
                     currentPage: currentPage.value - 1,
                     pageSize: pageSize
                 })
@@ -344,7 +342,7 @@ export default defineComponent({
             } catch (e) {
                 console.error(e)
             }
-            
+
         });
         onUnmounted(() => {
             console.log("卸载了")
@@ -411,22 +409,23 @@ export default defineComponent({
                     <label>修改日期:</label>
                     <input type="date" v-model="filters.modifyDate">
                 </div>
-            
-            <div class="filter-item filter-actions">
-                <button class="btn query" @click="applyFilters">查询</button>
-                <button class="btn reset" @click="resetFilters">
-                    <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
-                        <path
-                            d="M130 562.5c0-19.33 15.67-35 35-35s35 15.67 35 35C200 735.089 339.911 875 512.5 875S825 735.089 825 562.5 685.089 250 512.5 250c-19.33 0-35-15.67-35-35s15.67-35 35-35C723.749 180 895 351.251 895 562.5S723.749 945 512.5 945 130 773.749 130 562.5z"
-                            fill="#2F54EB" p-id="1472"></path>
-                        <path
-                            d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
-                            fill="#2F54EB" p-id="1473"></path>
-                    </svg>
-                    重置
-                </button>
-            </div></div>
+
+                <div class="filter-item filter-actions">
+                    <button class="btn query" @click="applyFilters">查询</button>
+                    <button class="btn reset" @click="resetFilters">
+                        <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
+                            <path
+                                d="M130 562.5c0-19.33 15.67-35 35-35s35 15.67 35 35C200 735.089 339.911 875 512.5 875S825 735.089 825 562.5 685.089 250 512.5 250c-19.33 0-35-15.67-35-35s15.67-35 35-35C723.749 180 895 351.251 895 562.5S723.749 945 512.5 945 130 773.749 130 562.5z"
+                                fill="#2F54EB" p-id="1472"></path>
+                            <path
+                                d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
+                                fill="#2F54EB" p-id="1473"></path>
+                        </svg>
+                        重置
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="table-container">

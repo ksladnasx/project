@@ -2,13 +2,11 @@
 import { ref } from 'vue';
 // import axios from 'axios';
 import { UserInfo } from '../types/types';
-import host from '../config/hostname';
 import { useUserStore } from '../store/index'
 import { ElMessage } from 'element-plus';
 import axiosService from "../utils/axios-test"
 const userStore = useUserStore()
 
-const hostname = host()
 const userInfo = ref<UserInfo>({
     id: 0,
     username: '',
@@ -47,7 +45,7 @@ const saveUserInfo = async () => {
     }
 
     // 若 username 或 organization 为空，弹出提示并返回
-    if (!userInfo.value.username ||!userInfo.value.organization) {
+    if (!userInfo.value.username || !userInfo.value.organization) {
         ElMessage.error('用户名和机构不能为空');
         return;
     }
@@ -55,14 +53,14 @@ const saveUserInfo = async () => {
     // 测试部分
     userInfo.value.username = userInfo.value.username
     userInfo.value.organization = userInfo.value.organization
-    localStorage.setItem('userinfo', JSON.stringify(userInfo.value))
+    localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
     userStore.updatUser()
-    isEditing.value = false;    
+    isEditing.value = false;
     return
 
     try {
         // 调用更新用户信息接口
-        await axiosService.post(hostname + '/api/user/update', {
+        await axiosService.post('/api/user/update', {
             userId: userStore.$state.userInfo?.id,
             username: userInfo.value.username,
             organization: userInfo.value.organization
@@ -94,7 +92,7 @@ const handleFileSelect = (event: Event) => {
     if (file) {
         selectedFile.value = file;
         avatarPreview.value = URL.createObjectURL(file);
-        
+
         console.log(avatarPreview.value);
     }
 };
@@ -121,7 +119,7 @@ const uploadAvatar = async () => {
         } else {
             ElMessage.error(response.data.msg)
         }
-    } catch (error) {   
+    } catch (error) {
         ElMessage.error('头像上传失败：' + error);
         console.error('头像上传失败:', error);
     }
@@ -151,7 +149,7 @@ const uploadAvatar = async () => {
                 <label>所属组织</label>
                 <input v-if="isEditing" v-model="userInfo.organization">
                 <span v-else>{{ userInfo.organization }}</span>
-                </div>
+            </div>
 
             <div class="setting-item">
                 <label>邮箱</label>
@@ -206,7 +204,7 @@ const uploadAvatar = async () => {
 
 h2 {
     color: #1a1a1a;
-    margin-bottom: 2rem;    
+    margin-bottom: 2rem;
 }
 
 .setting-item {

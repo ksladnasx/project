@@ -3,14 +3,13 @@ import { defineComponent, ref, computed, onMounted, onUnmounted, Ref, watch } fr
 import { useRouter } from 'vue-router';
 import testdata from '../data/data';
 import { TemplateFile } from "../types/types";
-import host from "../config/hostname";
+
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axiosService from "../utils/axios-test"
 
 const userId = ref()
-const hostname = host();
 
 
 export default defineComponent({
@@ -61,7 +60,7 @@ export default defineComponent({
             console.log(configData)
 
             try {
-                const res = await axiosService.post(hostname + "/api/template/page", configData)
+                const res = await axiosService.post("/api/template/page", configData)
                 if (res.data.code != 200) {
                     ElMessage.error(res.data.msg)
                     return;
@@ -110,7 +109,6 @@ export default defineComponent({
         //模板操作
 
 
-        //模板列表刷新的函数
 
 
         // 查看模板详情（GET）
@@ -119,7 +117,7 @@ export default defineComponent({
                 const response = await axiosService.get(`/api/files/${id}`);
                 console.log('模板详情:', response.data);
 
-                // 实际开发中这里可以跳转到详情页
+                // 实际开发中这里跳转到详情页
                 if (response.data.code == 200) {
                     ElMessage.success('模板详情获取成功');
                 } else {
@@ -141,7 +139,7 @@ export default defineComponent({
                     type: 'warning',
                 });
 
-                const response = await axiosService.post(hostname + `/api/template/delete`,
+                const response = await axiosService.post(`/api/template/delete`,
                     {
                         id: id
                     }
@@ -165,16 +163,16 @@ export default defineComponent({
 
         // 下载模板（POST）
         const downloadFile = async (id: number) => {
-            console.log('downloadFile:'+id)
+            console.log('downloadFile:' + id)
             try {
-                const response = await axiosService.get(hostname + `/api/template/download/${id}`, {
+                const response = await axiosService.get(`/api/template/download/${id}`, {
                     responseType: 'blob',
                     headers: {
                         'Content-Type': 'application/octet-stream'
                     }
                 });
 
-                // 创建临时下载链接
+                //创建隐藏的下载链接
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
@@ -184,8 +182,11 @@ export default defineComponent({
                     ?.split('filename=')[1]
                     ?.replace(/"/g, '') || `file_${id}`;
 
+
                 link.setAttribute('download', fileName);
                 document.body.appendChild(link);
+
+                // 触发下载
                 link.click();
                 link.remove();
 
@@ -216,7 +217,7 @@ export default defineComponent({
                     }
                 );
 
-                const response = await axiosService.post(hostname + `/api/template/rename`, {
+                const response = await axiosService.post(`/api/template/rename`, {
                     id: id,
                     templateName: newName
                 });
@@ -337,7 +338,7 @@ export default defineComponent({
             userId.value = userStore.$state.userInfo?.id
             console.log(currentPage.value)
             try {
-                const res = await axiosService.post(hostname + "/api/template/page", {
+                const res = await axiosService.post("/api/template/page", {
                     currentPage: currentPage.value - 1,
                     pageSize: pageSize
                 })
@@ -424,21 +425,22 @@ export default defineComponent({
                     <input type="date" v-model="filters.modifyDate">
                 </div>
 
-            
-            <div class="filter-item filter-actions">
-                <button class="btn query" @click="applyFilters">查询</button>
-                <button class="btn reset" @click="resetFilters">
-                    <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
-                        <path
-                            d="M130 562.5c0-19.33 15.67-35 35-35s35 15.67 35 35C200 735.089 339.911 875 512.5 875S825 735.089 825 562.5 685.089 250 512.5 250c-19.33 0-35-15.67-35-35s15.67-35 35-35C723.749 180 895 351.251 895 562.5S723.749 945 512.5 945 130 773.749 130 562.5z"
-                            fill="#2F54EB" p-id="1472"></path>
-                        <path
-                            d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
-                            fill="#2F54EB" p-id="1473"></path>
-                    </svg>
-                    重置</button>
-            </div></div>
+
+                <div class="filter-item filter-actions">
+                    <button class="btn query" @click="applyFilters">查询</button>
+                    <button class="btn reset" @click="resetFilters">
+                        <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
+                            <path
+                                d="M130 562.5c0-19.33 15.67-35 35-35s35 15.67 35 35C200 735.089 339.911 875 512.5 875S825 735.089 825 562.5 685.089 250 512.5 250c-19.33 0-35-15.67-35-35s15.67-35 35-35C723.749 180 895 351.251 895 562.5S723.749 945 512.5 945 130 773.749 130 562.5z"
+                                fill="#2F54EB" p-id="1472"></path>
+                            <path
+                                d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
+                                fill="#2F54EB" p-id="1473"></path>
+                        </svg>
+                        重置</button>
+                </div>
+            </div>
         </div>
 
         <div class="table-container">
@@ -457,7 +459,7 @@ a类模板提交json，上传该模板的模板有严格的格式校验；">?</s
                 <tbody>
                     <tr v-if="paginatedTemplates.length === 0">
                         <td colspan="5" class="no-data">暂无相关数据</td>
-                    </tr>   
+                    </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
                         <td>{{ template.templateName }}</td>
@@ -712,7 +714,7 @@ td {
     border-top: 1px solid #ebeef5;
     color: #606266;
     text-align: center;
-   
+
 }
 
 /* 分类标签样式 */
@@ -782,7 +784,7 @@ td {
 
 .act {
     position: relative;
-    right: 10vh ;
+    right: 10vh;
     display: flex;
     justify-content: center;
 }

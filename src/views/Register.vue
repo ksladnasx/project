@@ -2,13 +2,8 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import axios from 'axios';
-import host from '../config/hostname';
+
 import axiosService from "../utils/axios-test"
-
-
-//请求的主地址
-const hostname = host()
 
 
 // 路由器实例
@@ -186,7 +181,7 @@ const countdownTimer = ref<number | null>(null);
 const sendVerificationCode = async () => {
     // 发送验证码
     try {
-        const response = await axiosService.post(hostname + '/auth/captcha/email' ,{
+        const response = await axiosService.post('/auth/captcha/email', {
             email: emailForm.email
         });
         if (response.data.code == 200) {
@@ -227,7 +222,7 @@ const verifyEmail = async () => {
 
     // 验证验证码
     try {
-        const response = await axiosService.post(hostname + '/auth/register', {
+        const response = await axiosService.post('/auth/register', {
             email: emailForm.email,
             password: formData.password,
             emailVerifyCode: emailForm.verificationCode

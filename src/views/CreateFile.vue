@@ -2,12 +2,8 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { useUserStore } from '../store';
-import host from '../config/hostname';
 import axiosService from "../utils/axios-test"
 
-const userStore = useUserStore();
-const hostname = host();
 
 
 declare type Files = {
@@ -28,7 +24,7 @@ const handleSubmit = () => {
     return;
   }
   try {
-    axiosService.post(hostname + "/api/ai_case/create", {
+    axiosService.post("/api/ai_case/create", {
       templateId: fileType.value,
       aiCaseName: fileName.value
     })

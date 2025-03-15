@@ -3,6 +3,7 @@
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus';
 const route = useRoute()
 // 路由器实例
 const router = useRouter();

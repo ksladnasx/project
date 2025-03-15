@@ -1,17 +1,18 @@
 import { defineStore } from 'pinia';
-// import type { User } from '../../types/types';
-import host from '../../config/hostname';
 import verifyCode from '../../tools/verifyCode';
 import { ElMessage } from 'element-plus';
 import { UserInfo } from '../../types/types';
-import { Ref} from 'vue';
+import { Ref } from 'vue';
 import axiosService from '../../utils/axios-test' // 导入配置好的axios实例
+import { useRouter } from 'vue-router';
+
+// 获取路由器
+const router = useRouter()
 
 
 /**
  * 用户状态管理
  */
-const hostname = host()
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null as Ref<UserInfo> | null
@@ -34,7 +35,7 @@ export const useUserStore = defineStore('user', {
           accessToken: "token1",
           refreshToken: "token2"
         }
-        const userInfo :UserInfo= {
+        const userInfo: UserInfo = {
           id: 23232323,
           username: '张康',
           email: 'doctor@126.com',
@@ -52,7 +53,7 @@ export const useUserStore = defineStore('user', {
 
 
       try {
-        const response = await axiosService.post(hostname + '/auth/login', {  
+        const response = await axiosService.post('/auth/login', {
           email: email,
           password: password
         });
@@ -73,7 +74,7 @@ export const useUserStore = defineStore('user', {
 
           //获取用户信息
           try {
-            const info = await axiosService.post(hostname + "/api/user/info", {
+            const info = await axiosService.post("/api/user/info", {
               userId: user.id,
             })
             if (info.data.code != 200) {
@@ -82,7 +83,7 @@ export const useUserStore = defineStore('user', {
             }
             if (info.data.data) {
               this.userInfo = info.data.data;
-              localStorage.setItem('userinfo', JSON.stringify(info.data.data));
+              localStorage.setItem('userInfo', JSON.stringify(info.data.data));
               return 200
             }
           } catch {
@@ -105,38 +106,60 @@ export const useUserStore = defineStore('user', {
      * 用户登出
      */
     async logout() {
-      const userItem = localStorage.getItem('user');
+      this.userInfo = null;
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userInfo');
+      const userItem = localStorage.getItem('userInfo');
+
+
       if (userItem !== null) {
-        // //反序列化
-        // const user = JSON.parse(userItem)
-        const res = await axiosService.post(`/auth/logout/${this.$state.userInfo?.id}`, {
-          userId: this.$state.userInfo?.id
-        });
-        if (res.data.code === 200) {
-          ElMessage.success('登出成功');
-        } else {
-          ElMessage.error('登出失败');
-          ElMessage.error(verifyCode(res.data.code))
+        try {
+          const res = await axiosService.post(`/auth/logout/${this.$state.userInfo?.id}`, {
+            userId: this.$state.userInfo?.id
+          });
+          if (res.data.code === 200) {
+            this.userInfo = null;
+            sessionStorage.removeItem('accessToken');
+            sessionStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userInfo');
+            
+            ElMessage.success('登出成功');
+            return 200
+          } else {
+            ElMessage.error('登出失败');
+            ElMessage.error(verifyCode(res.data.code))
+            return 404
+          }
+        } catch (e) {
+          ElMessage.error("登出失败");
+          return 404
         }
+
       } else {
         // 处理用户信息不存在的情况
         console.error("用户信息不存在");
       }
 
-      this.userInfo = null;
-      localStorage.removeItem('user');
+
 
     },
     /**
      * 初始化用户信息
      */
     //更新信息
-    updatUser(){
+    updatUser() {
       const user = localStorage.getItem('user');
-      const userInfo = localStorage.getItem('userinfo')
+      const userInfo = localStorage.getItem('userInfo')
+      console.log(userInfo)
       if (user && userInfo) {
         this.userInfo = JSON.parse(userInfo);
       }
+      // if (!(user || userInfo)) {
+      //   router.push("/login")
+      // }
     }
   }
 });
