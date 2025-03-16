@@ -3,7 +3,7 @@
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus';
+import { onMounted, ref } from 'vue';
 const route = useRoute()
 // 路由器实例
 const router = useRouter();
@@ -11,7 +11,14 @@ const router = useRouter();
 const userStore = useUserStore();
 // 活动菜单项索引
 // const activeIndex = ref('1');
+const src = ref("https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain");
 
+onMounted(() => {
+  const userInfo = localStorage.getItem('userInfo');
+  if (userInfo) {
+    src.value = JSON.parse(userInfo).avatarUrl;
+  }
+});
 // 导航到指定路径
 const navigateTo = (path: string) => {
   router.push(path);
@@ -37,7 +44,7 @@ const logout = () => {
 
     <div class="user-express">
       <div class="main-avatar">
-        <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
+        <img :src=src
           alt="User Avatar" class="icon"
           @click="navigateToProfile"
            />
@@ -72,7 +79,7 @@ const logout = () => {
     </div>
     <div class="user-info">
       <div class="avatar">
-        <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
+        <img :src=src
           alt="User Avatar"
           @click="navigateToProfile"
           />

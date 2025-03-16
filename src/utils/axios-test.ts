@@ -18,7 +18,7 @@ service.interceptors.request.use(
 
         const url = config.url;
         if (sessionStorage.getItem("accessToken") && url?.indexOf("renewal") === -1) {
-            try {
+            try {   
                 const token = JSON.parse(sessionStorage.getItem("accessToken")!);
                 config.headers["Authorization"] = `Bearer ${token}`; // 修正拼写错误[8](@ref)
             } catch (e) {
@@ -41,7 +41,7 @@ async function getNewToken() {
                 { id: JSON.parse(userIds) },
                 {
                     headers: {
-                        accessToken: refreshToken, // 修正header字段拼写
+                        accessToken: refreshToken, 
                         isRefresh: true
                     }
                 }

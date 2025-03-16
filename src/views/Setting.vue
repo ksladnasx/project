@@ -14,6 +14,7 @@ const userInfo = ref<UserInfo>({
     organization: '',
     avatarUrl: ''
 })
+
 //利用本地缓存初始化userInfo
 if (userStore.$state.userInfo) {
     userInfo.value = {
@@ -33,7 +34,6 @@ const avatarPreview = ref('');
 
 // 进入编辑模式
 const enterEditMode = () => {
-
     isEditing.value = true;
 };
 
@@ -85,12 +85,14 @@ const openAvatarDialog = () => {
     avatarPreview.value = '';
 };
 
+
 // 处理文件选择
 const handleFileSelect = (event: Event) => {
     const file = (event.target as HTMLInputElement).files?.[0];
-    console.log(file);
+    // console.log(file);
     if (file) {
         selectedFile.value = file;
+        //对上传的文件创建临时的链接
         avatarPreview.value = URL.createObjectURL(file);
 
         console.log(avatarPreview.value);
@@ -103,9 +105,21 @@ const uploadAvatar = async () => {
 
     const formData = new FormData();
     formData.append('multipartFile', selectedFile.value);
-    // for (const pair of formData.entries()) {
-    //     console.log(pair[0], pair[1], "ffrfffff");
-    // }
+
+    //单机测试
+    if (avatarPreview.value && userStore.$state.userInfo?.avatarUrl) {
+        // console.log("fdsfsdfsd")
+        userStore.$state.userInfo.avatarUrl = avatarPreview.value;
+        localStorage.setItem('userInfo', JSON.stringify(userStore.$state.userInfo))
+        ElMessage.success("头像上传成功！")
+        showAvatarDialog.value = false;
+        //刷新页面以更新数据
+        window.location.reload();
+        return
+    }
+
+
+
     try {
         // 调用头像上传接口
         const response = await axiosService.post('/api/avatar', formData, {
@@ -115,6 +129,13 @@ const uploadAvatar = async () => {
         userInfo.value.avatarUrl = response.data.url;
         showAvatarDialog.value = false;
         if (response.data.code == 200) {
+
+            //获取用户头像
+            const res = await axiosService.get('/api/user/avatar/get')
+            localStorage.setItem('userInfo', JSON.stringify({ ...userStore.$state.userInfo, avatarUrl: res.data.url }))
+            userStore.updatUser()
+            //刷新页面以更新数据
+            window.location.reload();
             ElMessage.success("头像上传成功！")
         } else {
             ElMessage.error(response.data.msg)

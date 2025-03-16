@@ -4,10 +4,6 @@ import { ElMessage } from 'element-plus';
 import { UserInfo } from '../../types/types';
 import { Ref } from 'vue';
 import axiosService from '../../utils/axios-test' // 导入配置好的axios实例
-import { useRouter } from 'vue-router';
-
-// 获取路由器
-const router = useRouter()
 
 
 /**
@@ -102,6 +98,7 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    
     /**
      * 用户登出
      */
@@ -157,9 +154,7 @@ export const useUserStore = defineStore('user', {
       if (user && userInfo) {
         this.userInfo = JSON.parse(userInfo);
       }
-      // if (!(user || userInfo)) {
-      //   router.push("/login")
-      // }
+      
     }
   }
 });
