@@ -14,7 +14,7 @@ import Wrong from '../views/Wrong.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/modelfile'
   },
   {
     path: '/login',

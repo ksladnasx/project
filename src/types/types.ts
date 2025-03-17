@@ -20,7 +20,7 @@ export interface TemplateFile {
 
 // 文件接口
 export interface MyFile {
-  id: number;
+  id: number; 
   templateId:number;    
   aiCaseName: string;
   templateName: string;

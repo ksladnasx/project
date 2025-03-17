@@ -74,18 +74,27 @@ const handleSubmit = async () => {
   }
 
   try {
-    loading.value = true;
+    loading.value = true; 
 
     const formData = new FormData();
-    formData.append('templateName', templateName.value);
-    formData.append('category', templateType.value);
-    formData.append('multipartFile', fileList.value[0]);
 
+    // 1. 将 templateName 和 category 组合成 JSON 字符串，字段名为 req
+    const jsonData = {
+      templateName: templateName.value,
+      category: templateType.value
+    };
+    formData.append('req', JSON.stringify(jsonData)); // 直接追加字符串
+
+    // 2. 添加文件
+    formData.append('multipartFile', fileList.value[0]);
+    // console.log(formData);
+    // console.log(formData.get('req'));
+    // console.log(formData.get('multipartFile'));
     const response = await axiosService.post('/api/template/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        // 如果需要认证可以取消注释下面这行
-        'Authorization': `Bearer ${JSON.parse(sessionStorage.getItem('accessToken') || '""')}`
+        // // 如果需要认证可以取消注释下面这行  
+        // 'Authorization': `Bearer ${JSON.parse(sessionStorage.getItem('accessToken') || '""')}`
       },
       timeout: 30000 // 30秒超时
     });

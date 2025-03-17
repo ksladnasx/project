@@ -305,6 +305,8 @@ export default defineComponent({
                     ElMessage.error(res.data.msg)
                     return;
                 }
+                
+
                 MyFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
 
@@ -330,13 +332,16 @@ export default defineComponent({
         onMounted(async () => {
             const userStore = useUserStore();
             userId.value = userStore.$state.userInfo?.id
-            console.log(`加载了初始的第${currentPage.value}页数据`)
+            // console.log(`加载了初始的第${currentPage.value}页数据`)
             console.log(userId.value)
             try {
                 const res = await axiosService.post("/api/template/page", {
-                    currentPage: currentPage.value - 1,
+                    currentPage: currentPage.value ,
                     pageSize: pageSize
                 })
+
+                
+
                 MyFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
             } catch (e) {
@@ -346,6 +351,20 @@ export default defineComponent({
         });
         onUnmounted(() => {
             console.log("卸载了")
+            // const user =  localStorage.getItem("user")
+            // if(user){
+            //     const test = {
+            //     category:"case_a",
+            //     authorId: JSON.parse(user).id,
+            //     fileName:"test",
+            //     templateName:"test",
+            //     updateTimeStart:0
+            // }
+            // //正则表达式格式数据，便于展示
+            // test.category =test.category.replace(/^case_/, '') + "类";
+            // console.log(test)
+        
+        // }
         })
 
 

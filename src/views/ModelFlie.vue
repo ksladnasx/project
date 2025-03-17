@@ -59,12 +59,16 @@ export default defineComponent({
 
             console.log(configData)
 
+            
             try {
                 const res = await axiosService.post("/api/template/page", configData)
                 if (res.data.code != 200) {
                     ElMessage.error(res.data.msg)
                     return;
                 }
+                //正则表达式格式数据，便于展示
+                res.data.data.category = res.data.data.category.replace(/^case_/, '') + "类";
+
                 templateFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
 
@@ -339,9 +343,12 @@ export default defineComponent({
             console.log(currentPage.value)
             try {
                 const res = await axiosService.post("/api/template/page", {
-                    currentPage: currentPage.value - 1,
+                    currentPage: currentPage.value,
                     pageSize: pageSize
                 })
+                //正则表达式格式数据，便于展示
+                res.data.data.category = res.data.data.category.replace(/^case_/, '') + "类";
+                
                 templateFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
             } catch (e) {

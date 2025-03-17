@@ -104,6 +104,10 @@ const uploadAvatar = async () => {
     if (!selectedFile.value) return;
 
     const formData = new FormData();
+    const jsonData = {  
+        id:userInfo.value.id
+    }
+    formData.append('req', JSON.stringify(jsonData));
     formData.append('multipartFile', selectedFile.value);
 
     //单机测试
@@ -111,10 +115,11 @@ const uploadAvatar = async () => {
         // console.log("fdsfsdfsd")
         userStore.$state.userInfo.avatarUrl = avatarPreview.value;
         localStorage.setItem('userInfo', JSON.stringify(userStore.$state.userInfo))
-        ElMessage.success("头像上传成功！")
+        
         showAvatarDialog.value = false;
         //刷新页面以更新数据
         window.location.reload();
+        ElMessage.success("头像上传成功！")
         return
     }
 
@@ -125,6 +130,7 @@ const uploadAvatar = async () => {
         const response = await axiosService.post('/api/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
+
 
         userInfo.value.avatarUrl = response.data.url;
         showAvatarDialog.value = false;
