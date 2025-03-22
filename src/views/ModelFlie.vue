@@ -71,6 +71,8 @@ export default defineComponent({
 
                 templateFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
+                console.log(templateFiles.value)
+                console.log(totalPages.value)
 
 
             } catch (e) {

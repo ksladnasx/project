@@ -31,7 +31,7 @@ export const useUserStore = defineStore('user', {
           accessToken: "token1",
           refreshToken: "token2"
         } 
-          
+
         const userInfo: UserInfo = {
           id: 23232323,
           username: '张康',
@@ -76,9 +76,9 @@ export const useUserStore = defineStore('user', {
           //获取用户信息
           try {
             const info = await axiosService.post("/api/user/info", {
-              authId: user.id,
+              id: user.id,
             })
-            console.log("获取用户信息请求成功！")
+          console.log("获取用户信息请求成功！")
           console.log(info.data.data)
           console.log(info.data.code)
           // return

@@ -72,32 +72,35 @@ const handleSubmit = async () => {
     ElMessage.warning('请上传模板文件');
     return;
   }
+  // 新增校验逻辑（放在最前面）
+  const nameRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_-]+$/; // 包含中文的校验
+  if (!nameRegex.test(templateName.value) || templateName.value.includes('.')) {
+    ElMessage.error('模板名称包含非法字符或点号');
+    return; // 直接退出，不执行后续请求
+  }
 
   try {
-    loading.value = true; 
+    loading.value = true;
 
     const formData = new FormData();
-
-    // 1. 将 templateName 和 category 组合成 JSON 字符串，字段名为 req
+    if (templateType.value == 'b类') {
+      templateType.value = 'case_b'
+    }
+    console.log(templateType.value)
+    // 1. 将文件追加到 formData
+    formData.append('multipartFile', fileList.value[0]);
+    // 2. 将 templateName 和 category 组合成 JSON 字符串，字段名为 req
     const jsonData = {
-      templateName: templateName.value,
+      templateName: templateName.value+".docx",
       category: templateType.value
     };
-    formData.append('req', JSON.stringify(jsonData)); // 直接追加字符串
-
-    // 2. 添加文件
-    formData.append('multipartFile', fileList.value[0]);
-    // console.log(formData);
-    // console.log(formData.get('req'));
-    // console.log(formData.get('multipartFile'));
-    const response = await axiosService.post('/api/template/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        // // 如果需要认证可以取消注释下面这行  
-        // 'Authorization': `Bearer ${JSON.parse(sessionStorage.getItem('accessToken') || '""')}`
-      },
-      timeout: 30000 // 30秒超时
+    // 将JSON转换为Blob并指定Content-Type
+    const reqBlob = new Blob([JSON.stringify(jsonData)], {
+      type: 'application/json'
     });
+    formData.append('req', reqBlob); // 字段名对应后端的req
+
+    const response = await axiosService.post('/api/template/upload', formData);
 
     if (response.data.code === 200) { // 根据实际接口返回结构调整
       ElMessage.success('模板创建成功');

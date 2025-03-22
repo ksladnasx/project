@@ -25,6 +25,7 @@
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus';
 import axios from 'axios';
+import axiosService from '../utils/axios-test';
 
 const router = useRouter()
 
@@ -44,12 +45,8 @@ const test = async () => {
   
   try {
     // console.log("id:"+users.id)
-    const info = await axios.post("/api/user/info", {
-      authId: users.id,
-    },{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const info = await axiosService.post("/api/user/info", {
+      id: users.id,
     })
     console.log("id"+users.id)
     console.log("获取用户信息请求成功！")
