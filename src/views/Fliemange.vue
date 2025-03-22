@@ -10,7 +10,7 @@ import formatDate from "../tools/formatDate";
 import axiosService from "../utils/axios-test"
 
 const userId = ref()
-
+const isLoading = ref(false); // 请求锁
 
 export default defineComponent({
     name: "FileManagement",

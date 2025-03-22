@@ -30,7 +30,8 @@ export const useUserStore = defineStore('user', {
           email: 'doctor@126.com',
           accessToken: "token1",
           refreshToken: "token2"
-        }
+        } 
+          
         const userInfo: UserInfo = {
           id: 23232323,
           username: '张康',
@@ -61,21 +62,29 @@ export const useUserStore = defineStore('user', {
           const user = {
             id: response.data.data.id,
             email: response.data.data.email,
-            accessToken: response.data.tokens[0],
-            refreshToken: response.data.tokens[1]
-          }
+            tokens: { // 改用对象 {} 而不是数组 []
+              accessToken: response.data.data.tokens[0],
+              refreshToken: response.data.data.tokens[1]
+            }
+          };
           localStorage.setItem('user', JSON.stringify(user));
-          sessionStorage.setItem('accessToken', JSON.stringify(response.data.tokens[0]))
-          sessionStorage.setItem('refreshToken', JSON.stringify(response.data.tokens[1]))
+          sessionStorage.setItem('accessToken', JSON.stringify(response.data.data.tokens[0]))
+          sessionStorage.setItem('refreshToken', JSON.stringify(response.data.data.tokens[1]))
 
+          console.log("登录请求成功！")
+          console.log(response.data.data)
           //获取用户信息
           try {
             const info = await axiosService.post("/api/user/info", {
-              userId: user.id,
+              authId: user.id,
             })
+            console.log("获取用户信息请求成功！")
+          console.log(info.data.data)
+          console.log(info.data.code)
+          // return
             if (info.data.code != 200) {
               // ElMessage.error(response.data.msg);
-              return response.data.msg;
+              return info.data.msg;
             }
             if (info.data.data) {
               this.userInfo = info.data.data;

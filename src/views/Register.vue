@@ -179,11 +179,17 @@ const countdownTimer = ref<number | null>(null);
 
 // 发送验证码
 const sendVerificationCode = async () => {
+    console.log(formData.email);
+    console.log(formData);
     // 发送验证码
     try {
+        
         const response = await axiosService.post('/auth/captcha/email', {
-            email: emailForm.email
+            email: formData.email
         });
+        console.log(response.data.code)
+        console.log(response.data)
+
         if (response.data.code == 200) {
             ElMessage.success('验证码已发送到您的邮箱');
 
@@ -218,12 +224,16 @@ const sendVerificationCode = async () => {
 
 // 验证邮箱和验证码
 const verifyEmail = async () => {
-
-
+//     console.log({
+//             email: formData.email,
+//             password: formData.password,
+//             emailVerifyCode: emailForm.verificationCode
+//         })
+// return
     // 验证验证码
     try {
         const response = await axiosService.post('/auth/register', {
-            email: emailForm.email,
+            email: formData.email,
             password: formData.password,
             emailVerifyCode: emailForm.verificationCode
         });
@@ -235,8 +245,8 @@ const verifyEmail = async () => {
             const user = {
                 id: response.data.data.id,
                 email: response.data.data.email,
-                accessToken: response.data.tokens[0],
-                refreshToken: response.data.tokens[1]
+                accessToken: response.data.data.tokens[0],
+                refreshToken: response.data.data.tokens[1]
             }
             localStorage.setItem('user', JSON.stringify(user));
 
