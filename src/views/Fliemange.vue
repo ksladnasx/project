@@ -10,13 +10,12 @@ import formatDate from "../tools/formatDate";
 import axiosService from "../utils/axios-test"
 
 const userId = ref()
-const isLoading = ref(false); // 请求锁
 
 export default defineComponent({
     name: "FileManagement",
     setup() {
         const route = useRoute();
-        const MyFiles: Ref<MyFile[]> = ref(testdata().fileData)
+
 
         const filters = ref({
             id: "", //文件id
@@ -33,7 +32,7 @@ export default defineComponent({
             if (queryName) filters.value.templateName = queryName;
         });
 
-        const filteredTemplates = ref<MyFile[]>(MyFiles.value);
+        const filteredFiles = ref<MyFile[]>([]);
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
@@ -47,7 +46,7 @@ export default defineComponent({
 
         const paginatedTemplates = computed(() => {
             const start = (currentPage.value - 1) * pageSize;
-            return filteredTemplates.value.slice(start, start + pageSize);
+            return filteredFiles.value.slice(start, start + pageSize);
         });
 
         const totalPages = ref(100)
@@ -70,7 +69,7 @@ export default defineComponent({
             }
 
 
-            // filteredTemplates.value = result;
+            // filteredFiles.value = result;
             currentPage.value = 1;
         };
 
@@ -82,7 +81,6 @@ export default defineComponent({
                 author: '',
                 modifyDate: '',
             };
-            filteredTemplates.value = MyFiles.value;
             currentPage.value = 1;
         };
 
@@ -305,9 +303,9 @@ export default defineComponent({
                     ElMessage.error(res.data.msg)
                     return;
                 }
-                
 
-                MyFiles.value = res.data.data
+
+                filteredFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
 
 
@@ -332,40 +330,22 @@ export default defineComponent({
         onMounted(async () => {
             const userStore = useUserStore();
             userId.value = userStore.$state.userInfo?.id
+            filteredFiles.value = testdata().fileData
             // console.log(`加载了初始的第${currentPage.value}页数据`)
             console.log(userId.value)
             try {
-                const res = await axiosService.post("/api/template/page", {
-                    currentPage: currentPage.value ,
+                const res = await axiosService.post("/api/record/page", {
+                    currentPage: currentPage.value,
                     pageSize: pageSize
                 })
 
-                
-
-                MyFiles.value = res.data.data
+                filteredFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
             } catch (e) {
                 console.error(e)
             }
 
         });
-        onUnmounted(() => {
-            console.log("卸载了")
-            // const user =  localStorage.getItem("user")
-            // if(user){
-            //     const test = {
-            //     category:"case_a",
-            //     authorId: JSON.parse(user).id,
-            //     fileName:"test",
-            //     templateName:"test",
-            //     updateTimeStart:0
-            // }
-            // //正则表达式格式数据，便于展示
-            // test.category =test.category.replace(/^case_/, '') + "类";
-            // console.log(test)
-        
-        // }
-        })
 
 
 
@@ -399,11 +379,11 @@ export default defineComponent({
 <template>
     <div class="file-management">
         <header class="header">
-            <h2>文件管理</h2>
+            <h2 >文件管理</h2>
             <p>我的文件列表</p>
 
             <button class="create-file-btn" @click="gotoFileCreate">创建文件</button>
-            <hr style="width: 1350px;">
+            <hr style="max-width: 1200px; ">
         </header>
 
         <div class="filter-container">
@@ -556,15 +536,16 @@ button.active {
     margin-bottom: 4vh;
     position: relative;
     left: 2vw;
+    max-width: 1400px;  
 }
 
 .create-file-btn {
     background: #409eff;
     color: white;
     position: relative;
-    left: 1250px;
+    left: 88%;
     border: none;
-    padding: 8px 16px;
+    padding: 1.5vh 2.5vh;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s;

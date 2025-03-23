@@ -50,13 +50,13 @@ const saveUserInfo = async () => {
         return;
     }
 
-    // 测试部分
-    userInfo.value.username = userInfo.value.username
-    userInfo.value.organization = userInfo.value.organization
-    localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
-    userStore.updatUser()
-    isEditing.value = false;
-    return
+    // // 测试部分
+    // userInfo.value.username = userInfo.value.username
+    // userInfo.value.organization = userInfo.value.organization
+    // localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+    // userStore.updatUser()
+    // isEditing.value = false;
+    // return
 
     try {
         // 调用更新用户信息接口

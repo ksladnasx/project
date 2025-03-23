@@ -16,7 +16,6 @@ export default defineComponent({
     name: "FileManagement",
     setup() {
         const router = useRouter();
-        const templateFiles: Ref<TemplateFile[]> = ref(testdata().templateFiles)
 
         //筛选框内容
         const filters = ref({
@@ -27,7 +26,7 @@ export default defineComponent({
             modifyDate: "",
         });
 
-        const filteredTemplates = ref<TemplateFile[]>(templateFiles.value);
+        const filteredTemplates = ref<TemplateFile[]>([]);
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
@@ -42,6 +41,32 @@ export default defineComponent({
         });
 
         const totalPages = ref(100)
+        onMounted(async () => {
+
+            const userStore = useUserStore();
+            userId.value = userStore.$state.userInfo?.id
+            filteredTemplates.value = testdata().templateFiles;
+            console.log(currentPage.value)
+            try {
+                const res = await axiosService.post("/api/template/page", {
+                    currentPage: currentPage.value,
+                    pageSize: pageSize
+                })
+                //正则表达式格式数据，便于展示
+                if (Array.isArray(res.data.data)) {
+                    res.data.data.forEach((item: TemplateFile) => {
+                        item.category = item.category.replace(/^case_/, '') + "类";
+                    });
+                }
+                console.log(res.data.data.data)
+
+                filteredTemplates.value = res.data.data.data
+                console.log(filteredTemplates.value)
+                totalPages.value = res.data.totalPage
+            } catch (e) {
+                console.error(e)
+            }
+        });
 
 
         const updatePage = async (currentPage: number, pageSize: number, id?: number, fuzzyTemplateName?: string, authorName?: string, category?: string, updateTimeStart?: number) => {
@@ -59,19 +84,25 @@ export default defineComponent({
 
             console.log(configData)
 
-            
+
             try {
+                console.log(112233)
                 const res = await axiosService.post("/api/template/page", configData)
                 if (res.data.code != 200) {
                     ElMessage.error(res.data.msg)
                     return;
                 }
                 //正则表达式格式数据，便于展示
-                res.data.data.category = res.data.data.category.replace(/^case_/, '') + "类";
-
-                templateFiles.value = res.data.data
-                totalPages.value = res.data.totalPage
-                console.log(templateFiles.value)
+                // 正确方式：遍历数组中的每个模板对象，修改其 category 字段
+                if (Array.isArray(res.data.data)) {
+                    res.data.data.forEach((item: TemplateFile) => {
+                        item.category = item.category.replace(/^case_/, '') + "类";
+                    });
+                }
+                filteredTemplates.value = res.data.data.data;
+                totalPages.value = res.data.totalPage;
+                console.log(112233)
+                console.log(filteredTemplates.value)
                 console.log(totalPages.value)
 
 
@@ -107,7 +138,7 @@ export default defineComponent({
                 category: "",
                 modifyDate: "",
             };
-            filteredTemplates.value = templateFiles.value;
+
             currentPage.value = 1;
         };
 
@@ -339,25 +370,7 @@ export default defineComponent({
             { immediate: true } // 立即执行一次，确保初始值也被处理
         );
         // 挂载时候发请求加载初始页面
-        onMounted(async () => {
-            const userStore = useUserStore();
-            userId.value = userStore.$state.userInfo?.id
-            console.log(currentPage.value)
-            try {
-                const res = await axiosService.post("/api/template/page", {
-                    currentPage: currentPage.value,
-                    pageSize: pageSize
-                })
-                //正则表达式格式数据，便于展示
-                res.data.data.category = res.data.data.category.replace(/^case_/, '') + "类";
-                
-                templateFiles.value = res.data.data
-                totalPages.value = res.data.totalPage
-            } catch (e) {
-                console.error(e)
-            }
-            console.log("加载了初始的第一页数据")
-        });
+
         onUnmounted(() => {
             console.log("卸载了")
         })
@@ -387,7 +400,7 @@ export default defineComponent({
             viewFileDetails,
             deleteFile,
             downloadFile,
-            renameFile
+            renameFile,
         };
     },
 });
@@ -402,9 +415,9 @@ export default defineComponent({
             <h2>模板模板</h2>
             <p>现存模板如下</p>
 
-            <button style="background: #409eff;color: white;position: relative;left: 1250px;"
+            <button class="create-template-btn" 
                 @click="goToCreateTemplate">创建模板</button>
-            <hr style="width: 1350px;">
+                <hr style="max-width: 1200px; ">
         </header>
 
         <div class="filter-container">
@@ -595,6 +608,18 @@ button.active {
     overflow-y: auto;
     /* 启用垂直滚动条 */
 }
+.create-template-btn{
+    background: #409eff;
+    color: white;
+    position: relative;
+    left: 88%;
+    border: none;
+    padding: 1.5vh 2.5vh;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+}
 
 /* 页面头部样式 */
 .header {
@@ -602,6 +627,7 @@ button.active {
     margin-bottom: 4vh;
     position: relative;
     left: 2vw;
+    max-width: 1400px; 
 }
 
 /* 筛选容器基础样式 */
