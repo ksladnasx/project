@@ -1,7 +1,6 @@
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted, Ref, watch } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from 'vue-router';
-import testdata from '../data/data';
 import { TemplateFile } from "../types/types";
 
 import { useUserStore } from "../store";

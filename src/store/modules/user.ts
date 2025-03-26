@@ -11,7 +11,8 @@ import axiosService from '../../utils/axios-test' // 导入配置好的axios实�
  */
 export const useUserStore = defineStore('user', {
   state: () => ({
-    userInfo: null as Ref<UserInfo> | null
+    userInfo: null as Ref<UserInfo> | null,
+    userId:-1
   }),
 
   actions: {
@@ -70,31 +71,12 @@ export const useUserStore = defineStore('user', {
           localStorage.setItem('user', JSON.stringify(user));
           sessionStorage.setItem('accessToken', JSON.stringify(response.data.data.tokens[0]))
           sessionStorage.setItem('refreshToken', JSON.stringify(response.data.data.tokens[1]))
-
+          this.userId = user.id;
           console.log("登录请求成功！")
           console.log(response.data.data)
           //获取用户信息
-          try {
-            const info = await axiosService.post("/api/user/info", {
-              id: user.id,
-            })
-          console.log("获取用户信息请求成功！")
-          console.log(info.data.data)
-          console.log(info.data.code)
-          // return
-            if (info.data.code != 200) {
-              // ElMessage.error(response.data.msg);
-              return info.data.msg;
-            }
-            if (info.data.data) {
-              this.userInfo = info.data.data;
-              localStorage.setItem('userInfo', JSON.stringify(info.data.data));
-              return 200
-            }
-          } catch {
-            ElMessage.error("获取用户信息失败");
-            return "请求用户信息错误"
-          }
+          const msg = this.getUserInfo()
+          return msg
 
         } else {
           // ElMessage.error(response.data.msg)
@@ -107,7 +89,28 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    
+    async getUserInfo(){
+      try {
+        const info = await axiosService.post("/api/user/info", {
+          id: this.userId,
+        })
+      console.log("获取用户信息请求成功:！")
+      console.log(info.data.data)
+      // return
+        if (info.data.code != 200) {
+          // ElMessage.error(response.data.msg);
+          return info.data.msg;
+        }
+        if (info.data.data) {
+          this.userInfo = info.data.data;
+          localStorage.setItem('userInfo', JSON.stringify(info.data.data));
+          return 200
+        }
+      } catch {
+        ElMessage.error("获取用户信息失败");
+        return "请求用户信息错误"
+      }
+    },
     /**
      * 用户登出
      */

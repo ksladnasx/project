@@ -72,19 +72,15 @@ const handleScroll = async (e: Event) => {
 }
 
 const handleSubmit = () => {
-  console.log("请求的数据")
-  console.log({
-    templateId: templateId.value,
-    aiCaseName: fileName.value
-  })
+ const typename = ".docx"
   if (!fileName.value) {
     ElMessage.warning('请输入文件名称');
     return;
   }
   try {
-    axiosService.post("/api/ai_case/create", {
+    axiosService.post("/api/record/create", {
       templateId: templateId.value,
-      aiCaseName: fileName.value
+      aiCaseName: fileName.value+typename
     })
   } catch (e) {
     console.error(e)

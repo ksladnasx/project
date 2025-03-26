@@ -60,20 +60,25 @@ const saveUserInfo = async () => {
 
     try {
         // 调用更新用户信息接口
-        await axiosService.post('/api/user/update', {
+        const res = await axiosService.post('/api/user/update', {
             userId: userStore.$state.userInfo?.id,
-            username: userInfo.value.username,
+            userName: userInfo.value.username,
             organization: userInfo.value.organization
         });
-        // 若更新成功，更新本地用户信息
-        userInfo.value.username = userInfo.value.username;
-        userInfo.value.organization = userInfo.value.organization;
-        localStorage.setItem('userinfo', JSON.stringify(userInfo.value))
-
+        if (res.data.code == 200) {
+            // 若更新成功，更新本地用户信息
+            userInfo.value.username = userInfo.value.username
+            userInfo.value.organization = userInfo.value.organization
+            localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+            userStore.updatUser()
+            // localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
+            ElMessage.success('保存用户信息成功');
+        }
 
         // 关闭编辑模式
         isEditing.value = false;
     } catch (error) {
+        ElMessage.error('保存用户信息失败：');
         console.error('保存失败:', error);
     }
 };
@@ -103,45 +108,43 @@ const handleFileSelect = (event: Event) => {
 const uploadAvatar = async () => {
     if (!selectedFile.value) return;
 
-    const formData = new FormData();
-    const jsonData = {  
-        id:userInfo.value.id
-    }
-    formData.append('req', JSON.stringify(jsonData));
-    formData.append('multipartFile', selectedFile.value);
 
-    //单机测试
-    if (avatarPreview.value && userStore.$state.userInfo?.avatarUrl) {
-        // console.log("fdsfsdfsd")
-        userStore.$state.userInfo.avatarUrl = avatarPreview.value;
-        localStorage.setItem('userInfo', JSON.stringify(userStore.$state.userInfo))
-        
-        showAvatarDialog.value = false;
-        //刷新页面以更新数据
-        window.location.reload();
-        ElMessage.success("头像上传成功！")
-        return
-    }
+    // //单机测试
+    // if (avatarPreview.value && userStore.$state.userInfo?.avatarUrl) {
+    //     // console.log("fdsfsdfsd")
+    //     userStore.$state.userInfo.avatarUrl = avatarPreview.value;
+    //     localStorage.setItem('userInfo', JSON.stringify(userStore.$state.userInfo))
+
+    //     showAvatarDialog.value = false;
+    //     //刷新页面以更新数据
+    //     window.location.reload();
+    //     ElMessage.success("头像上传成功！")
+    //     return
+    // }
 
 
 
     try {
-        // 调用头像上传接口
-        const response = await axiosService.post('/api/avatar', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+
+        const formData = new FormData();
+        formData.append('multipartFile', selectedFile.value);
+        const jsonData = {
+            userId: userStore.$state.userInfo?.id
+        };
+        // 将JSON转换为Blob并指定Content-Type
+        const reqBlob = new Blob([JSON.stringify(jsonData)], {
+            type: 'application/json'
         });
-
-
-        userInfo.value.avatarUrl = response.data.url;
+        formData.append('req', reqBlob);
+        // 调用头像上传接口
+        const response = await axiosService.post('/api/user/avatar/upload', formData);
+        userStore.updatUser()
         showAvatarDialog.value = false;
         if (response.data.code == 200) {
-
-            //获取用户头像
-            const res = await axiosService.get('/api/user/avatar/get')
-            localStorage.setItem('userInfo', JSON.stringify({ ...userStore.$state.userInfo, avatarUrl: res.data.url }))
+            userStore.getUserInfo()
             userStore.updatUser()
             //刷新页面以更新数据
-            window.location.reload();
+            // window.location.reload();
             ElMessage.success("头像上传成功！")
         } else {
             ElMessage.error(response.data.msg)
@@ -192,7 +195,7 @@ const uploadAvatar = async () => {
             </template>
             <template v-else>
                 <button class="secondary-button" @click="isEditing = false">取消</button>
-                <button class="primary-button" @click="saveUserInfo">保存修改</button>
+                <button class="primary-button" @click.prevent="saveUserInfo">保存修改</button>
             </template>
         </div>
 
@@ -210,7 +213,7 @@ const uploadAvatar = async () => {
                 </label>
                 <div class="dialog-actions">
                     <button @click="showAvatarDialog = false">取消</button>
-                    <button :disabled="!selectedFile" @click="uploadAvatar">上传</button>
+                    <button :disabled="!selectedFile" @click.prevent="uploadAvatar">上传</button>
                 </div>
             </div>
         </div>

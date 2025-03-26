@@ -24,6 +24,7 @@ const handleFileChange = (event: Event) => {
   handleFile(input.files?.[0]);
   input.value = ''; // 清空输入以便重复选择相同文件
 };
+
 const handleFile = (file: File | undefined) => {
   if (!file) return;
 

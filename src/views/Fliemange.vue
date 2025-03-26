@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, watch, onUnmounted, Ref } from "vue";
+import { defineComponent, ref, computed, onMounted, watch } from "vue";
 import { useRoute } from 'vue-router';
 import { MyFile } from "../types/types";
 import router from "../router";
@@ -48,18 +48,14 @@ export default defineComponent({
             const userStore = useUserStore();
             userId.value = userStore.$state.userInfo?.id
             // filteredTemplates.value = testdata().templateFiles;
-            console.log(currentPage.value)
+            // console.log(currentPage.value)
             try {
                 const res = await axiosService.post("/api/record/page", {
                     currentPage: currentPage.value,
                     pageSize: pageSize
                 })
                 //正则表达式格式数据，便于展示
-                if (Array.isArray(res.data.data.data)) {
-                    res.data.data.data.forEach((item:any) => {
-                        item.category = item.category.replace(/^case_/, '') + "类";
-                    });
-                }
+                
                 console.log(res.data.data.data)
 
                 filteredFiles.value = res.data.data.data
@@ -154,7 +150,7 @@ export default defineComponent({
                     type: 'warning',
                 });
 
-                const response = await axiosService.post(`/api/ai_case/delete`,
+                const response = await axiosService.post(`/api/record/delete`,
                     {
                         id: id
                     }
@@ -328,7 +324,7 @@ export default defineComponent({
 
             try {
 
-                const res = await axiosService.post("/api/ai_case/page", configData)
+                const res = await axiosService.post("/api/record/page", configData)
                 if (res.data.code != 200) {
                     ElMessage.error(res.data.msg)
                     return;
