@@ -3,53 +3,25 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import axiosService from "../utils/axios-test"
+import { TemplateFile } from '../types/types';
 
 
 
-declare type Files = {
-  name: string;
-  type: string;
-
-};
 
 const router = useRouter();
 const fileName = ref('');
-const fileType = ref('');
-
-
-const handleSubmit = () => {
-
-  if (!fileName.value) {
-    ElMessage.warning('请输入文件名称');
-    return;
-  }
-  try {
-    axiosService.post("/api/ai_case/create", {
-      templateId: fileType.value,
-      aiCaseName: fileName.value
-    })
-  } catch (e) {
-    console.error(e)
-  }
-  ElMessage.success('文件创建成功');
-  router.push('/modelfile');
-};
+const templateId = ref('');
 
 
 
-// 1. 类型定义
-interface Option {
-  id: number
-  value: string
-  label: string
-}
+
+
 
 // 2. 创建axios实例（网页5/网页9）
 
 
 // 3. 响应式数据
-const selectedValue = ref('')
-const options = ref<Option[]>([])
+const options = ref<TemplateFile[]>([])
 const currentPage = ref(1)
 const loading = ref(false)
 const hasMore = ref(true)
@@ -57,10 +29,11 @@ const hasMore = ref(true)
 // 4. 数据获取方法（网页6/网页9）
 const fetchData = async (page: number) => {
   try {
-    const response = await axiosService.get('/api/template/page', {
-      params: { currentPage: page, pageSize: 10 }
+    const response = await axiosService.post("/api/template/page", {
+      currentPage: currentPage.value,
+      pageSize: page
     })
-    return response.data.data
+    return response.data.data.data
   } catch (error) {
     console.error('请求失败:', error)
     return []
@@ -75,6 +48,7 @@ const loadFirstPage = async () => {
   options.value = await fetchData(1)
   currentPage.value = 2
   loading.value = false
+  console.log(options.value)
 }
 
 // 6. 滚动处理（网页6/网页7）
@@ -97,6 +71,28 @@ const handleScroll = async (e: Event) => {
   }
 }
 
+const handleSubmit = () => {
+  console.log("请求的数据")
+  console.log({
+    templateId: templateId.value,
+    aiCaseName: fileName.value
+  })
+  if (!fileName.value) {
+    ElMessage.warning('请输入文件名称');
+    return;
+  }
+  try {
+    axiosService.post("/api/ai_case/create", {
+      templateId: templateId.value,
+      aiCaseName: fileName.value
+    })
+  } catch (e) {
+    console.error(e)
+  }
+  ElMessage.success('文件创建成功');
+  router.push('/modelfile');
+};
+
 // 7. 生命周期管理（网页3）
 onMounted(() => {
   const selectEl = document.querySelector('select')
@@ -117,10 +113,10 @@ onBeforeUnmount(() => {
       <div class="form-group">
         <label>模板类别</label>
         <div class="select-wrapper">
-          <select v-model="selectedValue" @click="loadFirstPage" @scroll.passive="handleScroll" class="scroll-select">
+          <select v-model="templateId" @click="loadFirstPage" @scroll.passive="handleScroll" class="scroll-select">
             <option value=""> </option>
-            <option v-for="item in options" :key="item.id" :value="item.value">
-              {{ item.label }}
+            <option v-for="item in options" :key="item.id" :value="item.id">
+              {{ item.templateName }}
             </option>
             <option v-if="loading" disabled>加载中...（已加载{{ options.length }}条）</option>
           </select>

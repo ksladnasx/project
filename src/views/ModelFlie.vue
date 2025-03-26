@@ -42,10 +42,11 @@ export default defineComponent({
 
         const totalPages = ref(100)
         onMounted(async () => {
-
             const userStore = useUserStore();
             userId.value = userStore.$state.userInfo?.id
-            filteredTemplates.value = testdata().templateFiles;
+            console.log("idid:")
+            console.log(userId.value)
+            // filteredTemplates.value = testdata().templateFiles;
             console.log(currentPage.value)
             try {
                 const res = await axiosService.post("/api/template/page", {
@@ -53,8 +54,8 @@ export default defineComponent({
                     pageSize: pageSize
                 })
                 //正则表达式格式数据，便于展示
-                if (Array.isArray(res.data.data)) {
-                    res.data.data.forEach((item: TemplateFile) => {
+                if (Array.isArray(res.data.data.data)) {
+                    res.data.data.data.forEach((item: TemplateFile) => {
                         item.category = item.category.replace(/^case_/, '') + "类";
                     });
                 }
@@ -94,16 +95,14 @@ export default defineComponent({
                 }
                 //正则表达式格式数据，便于展示
                 // 正确方式：遍历数组中的每个模板对象，修改其 category 字段
-                if (Array.isArray(res.data.data)) {
-                    res.data.data.forEach((item: TemplateFile) => {
+                if (Array.isArray(res.data.data.data)) {
+                    res.data.data.data.forEach((item: TemplateFile) => {
                         item.category = item.category.replace(/^case_/, '') + "类";
                     });
                 }
                 filteredTemplates.value = res.data.data.data;
-                totalPages.value = res.data.totalPage;
-                console.log(112233)
-                console.log(filteredTemplates.value)
-                console.log(totalPages.value)
+                totalPages.value = res.data.data.totalPage;
+
 
 
             } catch (e) {
@@ -199,49 +198,48 @@ export default defineComponent({
         };
 
         // 下载模板（POST）
-        const downloadFile = async (id: number) => {
-            console.log('downloadFile:' + id)
+
+
+        const downloadFile = async (id: number, name: string) => {
+            console.log('开始下载文件:', id);
+
             try {
-                const response = await axiosService.get(`/api/template/download/${id}`, {
-                    responseType: 'blob',
-                    headers: {
-                        'Content-Type': 'application/octet-stream'
-                    }
-                });
+                // 第一步：获取直接下载链接
+                const { data } = await axiosService.get<{
+                    code: number;
+                    data: string;  // 这里已经是直接下载的URL
+                    msg: string;
+                }>(`/api/template/download/${id}`);
 
-                //创建隐藏的下载链接
-                const url = window.URL.createObjectURL(new Blob([response.data]));
+                // 验证接口响应状态
+                if (data.code !== 200 || !data.data) {
+                    ElMessage.error(data.msg || '获取下载链接失败');
+                    return;
+                }
+
+                // 第二步：直接使用下载链接
                 const link = document.createElement('a');
-                link.href = url;
+                link.href = data.data;  // 直接使用后端返回的下载地址
+                link.target = '_blank'; // 新标签页打开（可选）
+                link.download = `${name}`; // 默认文件名，可根据需要调整
 
-                // 从Content-Disposition获取模板名
-                const fileName = response.headers['content-disposition']
-                    ?.split('filename=')[1]
-                    ?.replace(/"/g, '') || `file_${id}`;
-
-
-                link.setAttribute('download', fileName);
+                // 静默触发下载
                 document.body.appendChild(link);
-
-                // 触发下载
                 link.click();
                 link.remove();
 
-                if (response.data.code == 200) {
-                    ElMessage.success('模板下载已开始');
-                } else {
-                    ElMessage.error(response.data.msg);
-                }
+                ElMessage.success('文件下载已开始');
 
             } catch (error) {
-                ElMessage.error('模板下载失败');
-                console.error('Error downloading file:', error);
+                // 精简错误处理
+                console.error('下载异常:', error);
+            } finally {
+                shouldShow.value = null;
             }
-            shouldShow.value = null;
         };
 
         // 重命名模板
-        const renameFile = async (id: number) => {
+        const renameFile = async (id: number, templatename: string) => {
             try {
                 const { value: newName } = await ElMessageBox.prompt(
                     '请输入新模板名',
@@ -253,10 +251,13 @@ export default defineComponent({
                         inputErrorMessage: '模板名不能为空'
                     }
                 );
+                const regex = /\.[^.]*$/;
+                const match = templatename.match(regex);
+                const typename =  match ? match[0] : null;
 
                 const response = await axiosService.post(`/api/template/rename`, {
                     id: id,
-                    templateName: newName
+                    templateName: newName + typename,
                 });
                 if (response.data.code == 200) {
                     ElMessage.success('重命名成功');
@@ -415,9 +416,8 @@ export default defineComponent({
             <h2>模板模板</h2>
             <p>现存模板如下</p>
 
-            <button class="create-template-btn" 
-                @click="goToCreateTemplate">创建模板</button>
-                <hr style="max-width: 1200px; ">
+            <button class="create-template-btn" @click="goToCreateTemplate">创建模板</button>
+            <hr style="max-width: 1200px; ">
         </header>
 
         <div class="filter-container">
@@ -540,12 +540,12 @@ a类模板提交json，上传该模板的模板有严格的格式校验；">?</s
                                     </div>
                                     <div v-if="template.category == `b类` && template.authorId == userId"
                                         class="action-item" style="background-color:greenyellow;"
-                                        @click="renameFile(template.id)">
+                                        @click="renameFile(template.id, template.templateName)">
                                         <i class="rename-icon"></i> <!-- 修正图标类名 -->
                                         <span>重命名</span>
                                     </div>
                                     <div class="action-item" style="background-color:palevioletred;"
-                                        @click="downloadFile(template.id)">
+                                        @click="downloadFile(template.id, template.templateName)">
                                         <i class="download-icon"></i>
                                         <span>下载</span>
                                     </div>
@@ -608,7 +608,8 @@ button.active {
     overflow-y: auto;
     /* 启用垂直滚动条 */
 }
-.create-template-btn{
+
+.create-template-btn {
     background: #409eff;
     color: white;
     position: relative;
@@ -627,7 +628,7 @@ button.active {
     margin-bottom: 4vh;
     position: relative;
     left: 2vw;
-    max-width: 1400px; 
+    max-width: 1400px;
 }
 
 /* 筛选容器基础样式 */

@@ -1,7 +1,6 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch, onUnmounted, Ref } from "vue";
 import { useRoute } from 'vue-router';
-import testdata from '../data/data';
 import { MyFile } from "../types/types";
 import router from "../router";
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -15,28 +14,11 @@ export default defineComponent({
     name: "FileManagement",
     setup() {
         const route = useRoute();
-
-
-        const filters = ref({
-            id: "", //文件id
-            filename: "",
-            templateName: "", //关联模板名
-            author: "", //模板作者
-            //都是自己的文件，不需要判断是不是a类型，是不是能删除
-            modifyDate: "",
-        });
-
-        // 检查URL参数，如果有则应用筛选条件
-        onMounted(() => {
-            const queryName = route.query.name as string;
-            if (queryName) filters.value.templateName = queryName;
-        });
-
-        const filteredFiles = ref<MyFile[]>([]);
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
         const inpval = ref();
+        const filteredFiles = ref<MyFile[]>([]);
         // 多定义一个inpvals的原因是按钮的激活判断inpval == showPage，如果直接给输入框绑定inpval会导致用户没有点击跳转按钮就使得按钮因为输入的数据实时变化而激活，
         // 所以要多定义一个变量用于存输入的内容，在需要变化inpval 的时候再变化
         const inpvals = ref('');
@@ -50,6 +32,50 @@ export default defineComponent({
         });
 
         const totalPages = ref(100)
+        
+
+
+        const filters = ref({
+            id: "", //文件id
+            filename: "",
+            templateName: "", //关联模板名
+            author: "", //模板作者
+            //都是自己的文件，不需要判断是不是a类型，是不是能删除
+            modifyDate: "",
+        });
+
+        onMounted(async () => {
+            const userStore = useUserStore();
+            userId.value = userStore.$state.userInfo?.id
+            // filteredTemplates.value = testdata().templateFiles;
+            console.log(currentPage.value)
+            try {
+                const res = await axiosService.post("/api/record/page", {
+                    currentPage: currentPage.value,
+                    pageSize: pageSize
+                })
+                //正则表达式格式数据，便于展示
+                if (Array.isArray(res.data.data.data)) {
+                    res.data.data.data.forEach((item:any) => {
+                        item.category = item.category.replace(/^case_/, '') + "类";
+                    });
+                }
+                console.log(res.data.data.data)
+
+                filteredFiles.value = res.data.data.data
+                console.log(filteredFiles.value)
+                totalPages.value = res.data.data.totalPage
+            } catch (e) {
+                console.error(e)
+            }
+        });
+        // 检查URL参数，如果有则应用筛选条件
+        onMounted(() => {
+            const queryName = route.query.name as string;
+            if (queryName) filters.value.templateName = queryName;
+        });
+
+        
 
         //日期处理函数，将时间戳转化为具体对应的年月日以及精确的AM和PM
         function customParse(dateStr: string) {
@@ -152,61 +178,64 @@ export default defineComponent({
         };
 
         // 下载文件（POST）
-        const downloadFile = async (id: number) => {
+        const downloadFile = async (id: number, name: string) => {
+            console.log('开始下载文件:', id);
+
             try {
-                const response = await axiosService.get(`/api/ai_case/download/${id}`, {
-                    responseType: 'blob',
-                    headers: {
-                        'Content-Type': 'application/octet-stream'
-                    }
-                });
+                // 第一步：获取直接下载链接
+                const { data } = await axiosService.get<{
+                    code: number;
+                    data: string;  // 这里已经是直接下载的URL
+                    msg: string;
+                }>(`/api/record/download/${id}`);
 
-                // 创建临时下载链接
-                const url = window.URL.createObjectURL(new Blob([response.data]));
+                // 验证接口响应状态
+                if (data.code !== 200 || !data.data) {
+                    ElMessage.error(data.msg || '获取下载链接失败');
+                    return;
+                }
+                
+                // 第二步：直接使用下载链接
                 const link = document.createElement('a');
-                link.href = url;
+                link.href = data.data;  // 直接使用后端返回的下载地址
+                link.target = '_blank'; // 新标签页打开（可选）
+                link.download = `${name}`; // 默认文件名，可根据需要调整
 
-                // 从Content-Disposition获取文件名
-                const fileName = response.headers['content-disposition']
-                    ?.split('filename=')[1]
-                    ?.replace(/"/g, '') || `file_${id}`;
-
-                link.setAttribute('download', fileName);
+                // 静默触发下载
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
 
-                if (response.data.code == 200) {
-                    ElMessage.success('文件下载已开始');
-                } else {
-                    ElMessage.error('文件下载失败');
-                    ElMessage.error(response.data.msg);
-                }
+                ElMessage.success('文件下载已开始');
 
             } catch (error) {
-                ElMessage.error('文件下载失败');
-                console.error('Error downloading file:', error);
+                // 精简错误处理
+                console.error('下载异常:', error);
+            } finally {
+                showActionMenu.value = null;
             }
-            showActionMenu.value = null;
         };
 
         // 重命名文件
-        const renameFile = async (id: number) => {
+        const renameFile = async (id: number, filename: string) => {
             try {
                 const { value: newName } = await ElMessageBox.prompt(
-                    '请输入新文件名',
-                    '重命名文件',
+                    '请输入新模板名',
+                    '重命名模板',
                     {
                         confirmButtonText: '确认',
                         cancelButtonText: '取消',
                         inputPattern: /\S+/, // 非空验证
-                        inputErrorMessage: '文件名不能为空'
+                        inputErrorMessage: '模板名不能为空'
                     }
                 );
+                const regex = /\.[^.]*$/;
+                const match = filename.match(regex);
+                const typename =  match ? match[0] : null;
 
-                const response = await axiosService.post(`/api/ai_case/rename`, {
+                const response = await axiosService.post(`/api/record/rename`, {
                     id: id,
-                    templateName: newName
+                    aiCaseName: newName + typename,
                 });
                 if (response.data.code == 200) {
                     ElMessage.success('重命名成功');
@@ -214,7 +243,7 @@ export default defineComponent({
                     ElMessage.error(response.data.msg);
                 }
 
-                // 刷新文件列表
+                // 刷新模板列表
                 // fetchFileList();
             } catch (error) {
                 if (error !== 'cancel') {
@@ -224,6 +253,7 @@ export default defineComponent({
             }
             showActionMenu.value = null;
         };
+
 
 
 
@@ -305,8 +335,8 @@ export default defineComponent({
                 }
 
 
-                filteredFiles.value = res.data.data
-                totalPages.value = res.data.totalPage
+                filteredFiles.value = res.data.data.data
+                totalPages.value = res.data.data.totalPage
 
 
             } catch (e) {
@@ -326,26 +356,7 @@ export default defineComponent({
             },
             { immediate: true } // 立即执行一次，确保初始值也被处理
         );
-        // 挂载时候发请求加载初始页面
-        onMounted(async () => {
-            const userStore = useUserStore();
-            userId.value = userStore.$state.userInfo?.id
-            filteredFiles.value = testdata().fileData
-            // console.log(`加载了初始的第${currentPage.value}页数据`)
-            console.log(userId.value)
-            try {
-                const res = await axiosService.post("/api/record/page", {
-                    currentPage: currentPage.value,
-                    pageSize: pageSize
-                })
-
-                filteredFiles.value = res.data.data
-                totalPages.value = res.data.totalPage
-            } catch (e) {
-                console.error(e)
-            }
-
-        });
+       
 
 
 
@@ -472,12 +483,12 @@ export default defineComponent({
                                         <span>查看</span>
                                     </div>
                                     <div class="action-item" style="background-color:palevioletred;"
-                                        @click="downloadFile(template.id)">
+                                        @click="downloadFile(template.id,template.aiCaseName)">
                                         <i class="download-icon"></i>
                                         <span>下载</span>
                                     </div>
                                     <div class="action-item " style="background-color:greenyellow;"
-                                        @click="renameFile(template.id)">
+                                        @click="renameFile(template.id,template.aiCaseName)">
                                         <i class="rename-icon"></i>
                                         <span>重命名</span>
                                     </div>
@@ -525,7 +536,7 @@ button.active {
 
 .file-management {
     /* min-height: 100vh; */
-    padding: 2vw;
+    padding: 2vw;                                  
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -533,7 +544,7 @@ button.active {
 
 .header {
     width: 100%;
-    margin-bottom: 4vh;
+    margin-bottom: 4vh;                            
     position: relative;
     left: 2vw;
     max-width: 1400px;  

@@ -49,34 +49,40 @@ const sendVerificationCode = async () => {
 
   // 发送验证码
   try {
-    const response = await axiosService.get('/auth/captcha/email?email?' + emailForm.email);
-    if (response.data.code == 200) {
-      ElMessage.success('验证码已发送到您的邮箱');
+        
+        const response = await axiosService.post('/auth/captcha/email', {
+            email: emailForm.email
+        });
+        console.log(response.data.code)
+        console.log(response.data)
 
-      // 开始倒计时
-      countdown.value = 60;
-      if (countdownTimer.value) {
-        clearInterval(countdownTimer.value);
-      }
-      countdownTimer.value = window.setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          if (countdownTimer.value) {
-            clearInterval(countdownTimer.value);
-            countdownTimer.value = null;
-          }
+        if (response.data.code == 200) {
+            ElMessage.success('验证码已发送到您的邮箱');
+
+            // 开始倒计时
+            countdown.value = 60;
+            if (countdownTimer.value) {
+                clearInterval(countdownTimer.value);
+            }
+            countdownTimer.value = window.setInterval(() => {
+                countdown.value--;
+                if (countdown.value <= 0) {
+                    if (countdownTimer.value) {
+                        clearInterval(countdownTimer.value);
+                        countdownTimer.value = null;
+                    }
+                }
+            }, 1000);
+
+        } else {
+            const message = response.data.msg;
+            ElMessage.error(message);
         }
-      }, 1000);
-
-    } else {
-      const message = response.data.msg;
-      ElMessage.error(message);
+        // 发送验证码   
+    } catch (e) {
+        ElMessage.error('验证码请求失败');
+        console.log(e);
     }
-    // 发送验证码   
-  } catch (e) {
-    ElMessage.error('验证码请求失败');
-    console.log(e);
-  }
 };
 
 
@@ -107,12 +113,12 @@ const resetPassword = async () => {
     password: passwordForm.password,
     emailVerifyCode: emailForm.verificationCode
   })
+  // ElMessage.error(response.data.msg);
   if (response.data.code == 200) {
     ElMessage.success('密码重置成功，请使用新密码登录');
     router.push('/login');
   } else {
-    const message = verifyCode(response.data.code)
-    ElMessage.error(message);
+    ElMessage.error(response.data.msg);
   }
 
 };
