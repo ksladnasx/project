@@ -12,7 +12,7 @@ import axiosService from '../../utils/axios-test' // 导入配置好的axios实�
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null as Ref<UserInfo> | null,
-    userId:-1
+    userId: -1
   }),
 
   actions: {
@@ -31,11 +31,11 @@ export const useUserStore = defineStore('user', {
           email: 'doctor@126.com',
           accessToken: "token1",
           refreshToken: "token2"
-        } 
+        }
 
         const userInfo: UserInfo = {
           id: 23232323,
-          username: '张康',
+          userName: '张康',
           email: 'doctor@126.com',
           organization: '技术部',
           avatarUrl: 'https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain',
@@ -89,23 +89,23 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async getUserInfo(){
+    async getUserInfo() {
       try {
         const info = await axiosService.post("/api/user/info", {
           id: this.userId,
         })
-      console.log("获取用户信息请求成功:！")
-      console.log(info.data.data)
-      // return
+        console.log("获取用户信息请求成功:！")
+        console.log(info.data.data)
+        // return
         if (info.data.code != 200) {
           // ElMessage.error(response.data.msg);
           return info.data.msg;
         }
-        if (info.data.data) {
+        
           this.userInfo = info.data.data;
           localStorage.setItem('userInfo', JSON.stringify(info.data.data));
           return 200
-        }
+        
       } catch {
         ElMessage.error("获取用户信息失败");
         return "请求用户信息错误"
@@ -134,7 +134,7 @@ export const useUserStore = defineStore('user', {
             sessionStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
             localStorage.removeItem('userInfo');
-            
+
             ElMessage.success('登出成功');
             return 200
           } else {
@@ -166,7 +166,7 @@ export const useUserStore = defineStore('user', {
       if (user && userInfo) {
         this.userInfo = JSON.parse(userInfo);
       }
-      
+
     }
   }
 });

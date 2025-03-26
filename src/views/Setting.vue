@@ -9,7 +9,7 @@ const userStore = useUserStore()
 
 const userInfo = ref<UserInfo>({
     id: 0,
-    username: '',
+    userName: '',
     email: '',
     organization: '',
     avatarUrl: ''
@@ -19,7 +19,7 @@ const userInfo = ref<UserInfo>({
 if (userStore.$state.userInfo) {
     userInfo.value = {
         id: userStore.$state.userInfo.id,
-        username: userStore.$state.userInfo.username,
+        userName: userStore.$state.userInfo.userName,
         email: userStore.$state.userInfo.email,
         organization: userStore.$state.userInfo.organization,
         avatarUrl: userStore.$state.userInfo.avatarUrl
@@ -40,18 +40,18 @@ const enterEditMode = () => {
 // 保存用户信息
 const saveUserInfo = async () => {
     // 若未修改任何信息，不执行保存操作
-    if (userInfo.value.username === userStore.$state.userInfo?.username && userInfo.value.organization === userStore.$state.userInfo?.organization) {
+    if (userInfo.value.userName === userStore.$state.userInfo?.userName && userInfo.value.organization === userStore.$state.userInfo?.organization) {
         return;
     }
 
-    // 若 username 或 organization 为空，弹出提示并返回
-    if (!userInfo.value.username || !userInfo.value.organization) {
+    // 若 userName 或 organization 为空，弹出提示并返回
+    if (!userInfo.value.userName || !userInfo.value.organization) {
         ElMessage.error('用户名和机构不能为空');
         return;
     }
 
     // // 测试部分
-    // userInfo.value.username = userInfo.value.username
+    // userInfo.value.userName = userInfo.value.userName
     // userInfo.value.organization = userInfo.value.organization
     // localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
     // userStore.updatUser()
@@ -62,12 +62,12 @@ const saveUserInfo = async () => {
         // 调用更新用户信息接口
         const res = await axiosService.post('/api/user/update', {
             userId: userStore.$state.userInfo?.id,
-            userName: userInfo.value.username,
+            userName: userInfo.value.userName,
             organization: userInfo.value.organization
         });
         if (res.data.code == 200) {
             // 若更新成功，更新本地用户信息
-            userInfo.value.username = userInfo.value.username
+            userInfo.value.userName = userInfo.value.userName
             userInfo.value.organization = userInfo.value.organization
             localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
             userStore.updatUser()
@@ -141,11 +141,29 @@ const uploadAvatar = async () => {
         userStore.updatUser()
         showAvatarDialog.value = false;
         if (response.data.code == 200) {
-            userStore.getUserInfo()
-            userStore.updatUser()
-            //刷新页面以更新数据
-            // window.location.reload();
-            ElMessage.success("头像上传成功！")
+            try {
+                const info = await axiosService.post("/api/user/info", {
+                    id: userStore.$state.userInfo?.id,
+                })
+                console.log("获取用户信息请求成功:！")
+                console.log(info.data.data)
+
+                // return
+                if (info.data.code != 200) {
+                    // ElMessage.error(response.data.msg);
+                    return info.data.msg;
+                }
+
+                localStorage.setItem('userInfo', JSON.stringify(info.data.data));
+                
+
+            } catch {
+                ElMessage.error("获取用户信息失败");
+
+            }//刷新页面以更新数据
+            window.location.reload();
+                ElMessage.success("头像上传成功！")
+
         } else {
             ElMessage.error(response.data.msg)
         }
@@ -171,8 +189,8 @@ const uploadAvatar = async () => {
         <div class="info-section">
             <div class="setting-item">
                 <label>用户名</label>
-                <input v-if="isEditing" v-model="userInfo.username">
-                <span v-else>{{ userInfo.username }}</span>
+                <input v-if="isEditing" v-model="userInfo.userName">
+                <span v-else>{{ userInfo.userName }}</span>
             </div>
 
             <div class="setting-item">

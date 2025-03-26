@@ -44,13 +44,10 @@ const logout = () => {
 
     <div class="user-express">
       <div class="main-avatar">
-        <img :src=src
-          alt="User Avatar" class="icon"
-          @click="navigateToProfile"
-           />
+        <img :src=src alt="User Avatar" class="icon" @click="navigateToProfile" />
       </div>
       <p></p>
-      <div style="width: 86px; text-align: center;">{{ userStore.$state.userInfo?.username }}
+      <div style="width: 86px; text-align: center;">{{ userStore.$state.userInfo?.userName }}
       </div>
     </div>
 
@@ -61,7 +58,7 @@ const logout = () => {
         <i class="el-icon-document-add"></i>
         <span>模板管理</span>
       </div>
-      
+
       <div class="menu-item" @click="navigateTo('/filemanage')" :class="{ active: route.path === '/filemanage' }">
         <i class="el-icon-folder"></i>
         <span>文件管理</span>
@@ -79,13 +76,10 @@ const logout = () => {
     </div>
     <div class="user-info">
       <div class="avatar">
-        <img :src=src
-          alt="User Avatar"
-          @click="navigateToProfile"
-          />
+        <img :src=src alt="User Avatar" @click="navigateToProfile" />
       </div>
       <div class="user-details">
-        <div class="user-name">{{ userStore.$state.userInfo?.username }}</div>
+        <div class="user-name">{{ userStore.$state.userInfo?.userName }}</div>
         <div class="user-role">{{ userStore.$state.userInfo?.organization }}</div>
       </div>
       <div class="logout" @click="logout">
@@ -96,11 +90,15 @@ const logout = () => {
 </template>
 
 <style scoped>
-*{
-  -webkit-user-select: none;  /* Chrome/Safari/Edge */
-  -moz-user-select: none;     /* Firefox */
-  -ms-user-select: none;      /* IE10+ */
-  user-select: none;          /* 标准语法 */
+* {
+  -webkit-user-select: none;
+  /* Chrome/Safari/Edge */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE10+ */
+  user-select: none;
+  /* 标准语法 */
 }
 
 .logo {
@@ -135,7 +133,7 @@ const logout = () => {
   border-radius: 4px;
   margin-left: 10px;
   margin-right: 10px;
-  
+
 }
 
 .menu-item:hover {
@@ -158,7 +156,7 @@ const logout = () => {
   transform: scale(1.2);
 }
 
-.user-express{
+.user-express {
   width: 86px;
   height: 108px;
   font-size: 13px;
@@ -185,7 +183,8 @@ const logout = () => {
   border: 2px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
 }
-.icon{
+
+.icon {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -245,8 +244,9 @@ const logout = () => {
 }
 
 .sidebar {
-  width: clamp(80px, 20vw, 220px); /* 动态宽度，范围200-300px */
-  height: 100vh;      
+  width: clamp(80px, 20vw, 220px);
+  /* 动态宽度，范围200-300px */
+  height: 100vh;
   background-color: #304156;
   color: #fff;
   display: flex;
@@ -254,11 +254,13 @@ const logout = () => {
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 10;
   flex-shrink: 0;
-  transition: width 0.3s ease; /* 添加过渡动画 */
+  transition: width 0.3s ease;
+  /* 添加过渡动画 */
 }
 
 .logo {
-  height: clamp(50px, 8vh, 70px); /* 动态高度 */
+  height: clamp(50px, 8vh, 70px);
+  /* 动态高度 */
   padding: 0 1rem;
   display: flex;
   align-items: center;
@@ -269,7 +271,8 @@ const logout = () => {
 
 .logo h2 {
   margin: 0;
-  font-size: clamp(14px, 1.5vw, 18px); /* 动态字体大小 */
+  font-size: clamp(14px, 1.5vw, 18px);
+  /* 动态字体大小 */
   letter-spacing: 1px;
   white-space: nowrap;
   overflow: hidden;
@@ -283,12 +286,14 @@ const logout = () => {
 }
 
 .menu-item {
-  height: clamp(40px, 6vh, 50px); /* 动态高度 */
+  height: clamp(40px, 6vh, 50px);
+  /* 动态高度 */
   display: flex;
   align-items: center;
   padding: 0 clamp(10px, 1.5vw, 20px);
   margin: 0 0.5rem 0.5rem;
-  font-size: clamp(12px, 1.1vw, 14px); /* 动态字体 */
+  font-size: clamp(12px, 1.1vw, 14px);
+  /* 动态字体 */
 }
 
 .menu-item i {
@@ -333,5 +338,4 @@ const logout = () => {
   height: clamp(25px, 3vw, 30px);
   font-size: clamp(14px, 1.5vw, 18px);
 }
-
 </style>

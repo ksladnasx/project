@@ -11,27 +11,27 @@ const router = useRouter();
 const userStore = useUserStore();
 
 // 表单数据
-const username = ref('');
+const userName = ref('');
 const password = ref('');
 const loading = ref(false);
 
 // 处理登录
 const handleLogin = async () => {
-  if (!username.value || !password.value) {
+  if (!userName.value || !password.value) {
     ElMessage.warning('请输入用户名和密码');
     return;
   }
 
   loading.value = true;
   try {
-    const res = await userStore.login(username.value, password.value);
+    const res = await userStore.login(userName.value, password.value);
 
     if (res == 200) {
       ElMessage.success('登录成功');
       router.push('/modelfile');
     } else {
       //请求失败的返回
-      
+
       ElMessage.error(res);
     }
   } catch (error) {
@@ -65,7 +65,7 @@ const handleForgotPassword = () => {
       <div class="login-form">
         <div class="form-item">
           <span style="display: inline-block;padding-right: 2%;">邮箱✉️:</span>
-          <input type="text" v-model="username" placeholder="请输入邮箱" />
+          <input type="text" v-model="userName" placeholder="请输入邮箱" />
         </div>
 
         <div class="form-item">
@@ -126,12 +126,13 @@ const handleForgotPassword = () => {
   }
 }
 
-p{
+p {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
 }
+
 .login-box {
   width: 600px;
   padding: 40px;
@@ -330,6 +331,6 @@ p{
   animation-delay: 0.7s;
   animation-fill-mode: both;
 
-  
+
 }
 </style>

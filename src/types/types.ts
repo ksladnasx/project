@@ -2,7 +2,7 @@
 // 用户信息接口
 export interface UserInfo {
   id: number,
-  username: string,
+  userName: string,
   email: string,
   organization: string,
   avatarUrl: string
@@ -20,8 +20,8 @@ export interface TemplateFile {
 
 // 文件接口
 export interface MyFile {
-  id: number; 
-  templateId:number;    
+  id: number;
+  templateId: number;
   aiCaseName: string;
   templateName: string;
   authorId: number;
