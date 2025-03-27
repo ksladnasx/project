@@ -104,6 +104,7 @@ export default defineComponent({
                 modifyDate: '',
             };
             currentPage.value = 1;
+            updatePage(currentPage.value, pageSize);
         };
 
         // 切换操作菜单的显示状态

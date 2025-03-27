@@ -138,6 +138,7 @@ export default defineComponent({
             };
 
             currentPage.value = 1;
+            updatePage(currentPage.value, pageSize);
         };
 
 

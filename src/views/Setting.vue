@@ -108,22 +108,6 @@ const handleFileSelect = (event: Event) => {
 const uploadAvatar = async () => {
     if (!selectedFile.value) return;
 
-
-    // //单机测试
-    // if (avatarPreview.value && userStore.$state.userInfo?.avatarUrl) {
-    //     // console.log("fdsfsdfsd")
-    //     userStore.$state.userInfo.avatarUrl = avatarPreview.value;
-    //     localStorage.setItem('userInfo', JSON.stringify(userStore.$state.userInfo))
-
-    //     showAvatarDialog.value = false;
-    //     //刷新页面以更新数据
-    //     window.location.reload();
-    //     ElMessage.success("头像上传成功！")
-    //     return
-    // }
-
-
-
     try {
 
         const formData = new FormData();
